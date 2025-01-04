@@ -1,0 +1,18 @@
+alias "$"=''
+alias ls='lsd'
+alias l='lsd -l'
+alias ll='lsd -l'
+alias la='lsd -a'
+alias lla='lsd -la'
+alias lt='lsd --tree'
+
+alias vi='nvim'
+alias d='docker'
+alias dc='docker compose'
+alias tf='terraform'
+alias c='cargo'
+alias p='pnpm'
+
+alias gp='git pull'
+alias teee='tee >(pbcopy)'
+alias ze='nvim ~/.zshrc'
