@@ -14,6 +14,7 @@ alias c='cargo'
 alias p='pnpm'
 
 alias gp='git pull'
+alias gll='git log --oneline'
 alias glf='git log --pretty=fuller'
 alias teee='tee >(pbcopy)'
 alias ze='nvim ~/.zshrc'
