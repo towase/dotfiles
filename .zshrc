@@ -3,7 +3,7 @@
 
 eval "$(/opt/homebrew/bin/brew shellenv)"
 source ~/.gvm/scripts/gvm
-export PATH=~/go/bin:$PATH
+export PATH="$HOME/go/bin:$PATH"
 
 export VOLTA_HOME="$HOME/.volta"
 export PATH="$VOLTA_HOME/bin:$PATH"
