@@ -31,3 +31,6 @@ alias ff='find . -type f'
 alias fd='find . -type d'
 alias df='df -h'
 alias du='du -ch'
+
+alias br='brew'
+alias brl='brew leaves -r'

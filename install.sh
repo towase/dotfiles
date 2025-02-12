@@ -16,6 +16,7 @@ packages=(
   tree
   trivy
   goodwithtech/r/dockle
+  hstr
 )
 
 for package in "${packages[@]}"; do
