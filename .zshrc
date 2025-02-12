@@ -12,6 +12,8 @@ if [ -f ~/src/github.com/stomy13/dotfiles/alias.sh ]; then
     source ~/src/github.com/stomy13/dotfiles/alias.sh
 fi
 
+eval "$(starship init zsh)"
+
 # Added by OrbStack: command-line tools and integration
 source ~/.orbstack/shell/init.zsh 2>/dev/null || :
 
