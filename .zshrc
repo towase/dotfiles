@@ -8,6 +8,10 @@ export PATH="$HOME/go/bin:$PATH"
 export VOLTA_HOME="$HOME/.volta"
 export PATH="$VOLTA_HOME/bin:$PATH"
 
+if [ -f ~/src/github.com/stomy13/dotfiles/alias.sh ]; then
+    source ~/src/github.com/stomy13/dotfiles/alias.sh
+fi
+
 # Added by OrbStack: command-line tools and integration
 source ~/.orbstack/shell/init.zsh 2>/dev/null || :
 
