@@ -14,6 +14,7 @@ alias dc='docker compose'
 alias tf='terraform'
 alias ca='cargo'
 alias p='pnpm'
+alias cur='cursor'
 
 alias gp='git pull'
 alias gll='git log --oneline'
