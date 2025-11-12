@@ -36,4 +36,4 @@ alias du='du -ch'
 alias br='brew'
 alias brl='brew leaves -r'
 
-alias dif='npx difit'
+alias dif='npx difit@latest'
