@@ -4,14 +4,17 @@ packages=(
   act
   awscli
   ffmpeg
+  exiftool
   gh
   ghq
   imagemagick
   jq
   k1low/tap/runn
+  lazygit
   lsd
   neovim
   suzuki-shunsuke/pinact/pinact
+  ripgrep
   tfenv
   tree
   trivy
