@@ -13,6 +13,7 @@ packages=(
   lazygit
   lsd
   neovim
+  ni
   suzuki-shunsuke/pinact/pinact
   ripgrep
   tfenv
