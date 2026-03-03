@@ -21,6 +21,7 @@ packages=(
   trivy
   goodwithtech/r/dockle
   hstr
+  volta
   zsh-completions
 )
 
@@ -30,3 +31,5 @@ done
 
 # to exec compinit for zsh-completions
 chmod go-w '/opt/homebrew/share'
+
+volta install node
