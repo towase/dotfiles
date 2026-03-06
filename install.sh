@@ -33,3 +33,5 @@ done
 chmod go-w '/opt/homebrew/share'
 
 volta install node
+
+curl -fsSL https://claude.ai/install.sh | bash
