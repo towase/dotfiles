@@ -3,6 +3,7 @@
 packages=(
   act
   awscli
+  codex
   ffmpeg
   exiftool
   gh
