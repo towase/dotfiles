@@ -15,6 +15,9 @@ fi
 
 # 2) aqua: CLI packages
 aqua install
+mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/aquaproj-aqua"
+ln -sf "${SCRIPT_DIR}/aqua.yaml" "${XDG_CONFIG_HOME:-$HOME/.config}/aquaproj-aqua/aqua.yaml"
+
 
 # 3) mise: runtime versions
 mise trust -y "${SCRIPT_DIR}/mise.toml"
