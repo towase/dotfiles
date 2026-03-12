@@ -13,6 +13,7 @@ packages=(
   k1low/tap/runn
   lazygit
   lsd
+  mise
   neovim
   ni
   suzuki-shunsuke/pinact/pinact
@@ -22,7 +23,6 @@ packages=(
   trivy
   goodwithtech/r/dockle
   hstr
-  volta
   zsh-completions
 )
 
