@@ -1,38 +1,24 @@
 #!/bin/zsh
 
-packages=(
-  act
-  awscli
-  codex
-  ffmpeg
-  exiftool
-  gh
-  ghq
-  imagemagick
-  jq
-  k1low/tap/runn
-  lazygit
-  lsd
-  mise
-  neovim
-  ni
-  suzuki-shunsuke/pinact/pinact
-  ripgrep
-  tfenv
-  tree
-  trivy
-  goodwithtech/r/dockle
-  hstr
-  zsh-completions
-)
+set -euo pipefail
 
-for package in "${packages[@]}"; do
-  brew install "$package"
-done
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "${SCRIPT_DIR}"
+
+# 1) brew: OS packages and exceptions
+brew bundle --file "${SCRIPT_DIR}/Brewfile"
 
 # to exec compinit for zsh-completions
-chmod go-w '/opt/homebrew/share'
+if [[ -d /opt/homebrew/share ]]; then
+  chmod go-w '/opt/homebrew/share'
+fi
 
-volta install node
+# 2) aqua: CLI packages
+aqua install
 
-curl -fsSL https://claude.ai/install.sh | bash
+# 3) mise: runtime versions
+mise trust -y "${SCRIPT_DIR}/mise.toml"
+mise install
+
+# 4) self-updating CLI exception
+curl -fsSL https://claude.ai/install.sh | zsh

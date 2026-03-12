@@ -46,6 +46,7 @@
 
 - `aqua` 非対応CLIのみ `brew` に退避する。
 - `Brewfile` へ追加する際は、対象行に例外理由コメントを必ず残す。
+- 自己更新型CLIは公式インストーラを許容する（例: `curl -fsSL https://claude.ai/install.sh | zsh`）。
 
 ## 更新ルール
 

@@ -2,14 +2,14 @@
 [[ -f "${HOME}/Library/Application Support/amazon-q/shell/zprofile.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zprofile.pre.zsh"
 
 eval "$(/opt/homebrew/bin/brew shellenv)"
-source ~/.gvm/scripts/gvm
 export PATH="$HOME/go/bin:$PATH"
 
-export VOLTA_HOME="$HOME/.volta"
-export PATH="$VOLTA_HOME/bin:$PATH"
+export PATH="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin:$PATH"
 
-if [ -f ~/src/github.com/stomy13/dotfiles/alias.sh ]; then
-    source ~/src/github.com/stomy13/dotfiles/alias.sh
+eval "$(mise activate zsh)"
+
+if [ -f ~/src/github.com/towase/dotfiles/alias.sh ]; then
+    source ~/src/github.com/towase/dotfiles/alias.sh
 fi
 
 eval "$(starship init zsh)"
