@@ -25,3 +25,4 @@ mise install
 
 # 4) self-updating CLI exception
 curl -fsSL https://claude.ai/install.sh | zsh
+curl -fsSL https://cli.kiro.dev/install | bash
