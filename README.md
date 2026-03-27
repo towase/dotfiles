@@ -17,17 +17,18 @@
 
 ## 初期セットアップ
 
-1. `./install.sh` を実行する。
+1. [Homebrew の `.pkg` インストーラ](https://github.com/Homebrew/brew/releases/latest) をダウンロードして実行する。
 2. `./setup.sh` を実行する。
+3. `./install.sh` を実行する。
+
+`setup.sh` の役割:
+- macOS設定の適用
+- シェル初期化まわりのセットアップ
 
 `install.sh` の役割:
 - `brew`（OS基盤）導入・反映
 - `aqua`（CLI）導入・反映
 - `mise`（runtime）導入・反映
-
-`setup.sh` の役割:
-- macOS設定の適用
-- シェル初期化まわりのセットアップ
 
 期待結果:
 - CLIは `aqua.yaml` 由来で利用可能になる。
