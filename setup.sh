@@ -8,7 +8,7 @@ ln -sf ~/src/github.com/towase/dotfiles/.zshrc ~/.zshrc
 
 ln -s ~/.agents/skills ~/.claude/skills
 
-ln -s ./AGENTS.md ~/.claude/CLAUDE.md
+ln -sf ~/src/github.com/towase/dotfiles/AGENTS.md ~/.claude/CLAUDE.md
 
 # Dockの行数と列数を設定する
 defaults write com.apple.dock springboard-rows -int 7
