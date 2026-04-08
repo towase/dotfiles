@@ -14,3 +14,6 @@ brew "hstr"
 brew "tree"
 # exception: aqua package not found for ni
 brew "ni"
+# exception: aqua non-supported
+tap "k1LoW/tap"
+brew "k1LoW/tap/mo"
