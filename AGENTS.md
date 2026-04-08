@@ -1,3 +1,6 @@
+## GitHub Issue ルール
+- 達成条件はアウトカムベースで記載すること
+
 ## GitHub PR ルール
 - PRを作成する場合は、PR Template が存在する確認し、あれば PR Template に沿って作成してください。
 
