@@ -1,6 +1,7 @@
 {
   "permissions": {
-    "defaultMode": "acceptEdits"
+    "defaultMode": "acceptEdits",
+    "allow": ["WebSearch"]
   },
   "effortLevel": "high",
   "language": "Japanese"
