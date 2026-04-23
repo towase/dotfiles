@@ -6,5 +6,6 @@
     "defaultMode": "acceptEdits"
   },
   "language": "Japanese",
-  "effortLevel": "high"
+  "effortLevel": "high",
+  "skipAutoPermissionPrompt": true
 }
