@@ -5,17 +5,17 @@
 - `brew`: OS 管理（OS基盤・アプリ基盤・aqua非対応ツールの例外）
 - `aqua`: CLI 管理（原則すべてのCLI）
 - `mise`: runtime 管理（言語・実行環境のバージョン）
-- `chezmoi`: dotfile 管理（ホーム配下の symlink / 設定ファイル）
+- `chezmoi`: dotfile 管理（ホーム配下のファイル配置）
 
 ## 責務マトリクス
 
-| 対象                  | 管理先   | 定義ファイル                      | 備考                       |
-| --------------------- | -------- | --------------------------------- | -------------------------- |
-| OS基盤ツール          | Homebrew | `Brewfile`                        | macOSセットアップ向け      |
-| CLIツール（原則）     | aqua     | `aqua.yaml`                       | `gh`, `jq`, `ripgrep` など |
-| runtime               | mise     | `mise.toml`                       | 例: `node`, `terraform`    |
-| 例外CLI（aqua非対応） | Homebrew | `Brewfile`                        | 理由コメントを必須で付与   |
-| ホーム配下の dotfile  | chezmoi  | `dot_*` / `symlink_*.tmpl` 各ファイル | ホームへ symlink を配置 |
+| 対象                  | 管理先   | 定義ファイル                              | 備考                       |
+| --------------------- | -------- | ----------------------------------------- | -------------------------- |
+| OS基盤ツール          | Homebrew | `Brewfile`                                | macOSセットアップ向け      |
+| CLIツール（原則）     | aqua     | `aqua.yaml`                               | `gh`, `jq`, `ripgrep` など |
+| runtime               | mise     | `mise.toml`                               | 例: `node`, `terraform`    |
+| 例外CLI（aqua非対応） | Homebrew | `Brewfile`                                | 理由コメントを必須で付与   |
+| ホーム配下の dotfile  | chezmoi  | `dot_*` / `*.tmpl` / `symlink_*.tmpl`     | `chezmoi apply` で配置     |
 
 ## 初期セットアップ
 
@@ -31,7 +31,7 @@
 - `brew`（OS基盤）導入・反映
 - `aqua`（CLI）導入・反映
 - `mise`（runtime）導入・反映
-- `chezmoi` の sourceDir 設定と `chezmoi apply` によるホーム配下の symlink 展開
+- `chezmoi` の sourceDir 設定と `chezmoi apply` によるホーム配下への配置
 
 期待結果:
 - CLIは `aqua.yaml` 由来で利用可能になる。
@@ -41,22 +41,42 @@
 
 ## 日常運用
 
-追加・更新・削除時は、変更対象を先に決めてから編集します。
+### dotfile 編集フロー
 
-- CLIを追加/更新/削除する: `aqua.yaml` を編集する。
-- runtimeを追加/更新/削除する: `mise.toml` を編集する。
-- OS基盤または例外CLIを追加/更新/削除する: `Brewfile` を編集する。
-- dotfile を追加/更新/削除する:
-  - symlink 経由で管理されるファイル（`.zshrc` / `.gitconfig` / `.claude/settings.json` / `AGENTS.md` 経由の `CLAUDE.md` 等）はリポジトリ内の実体ファイルを直接編集するだけで反映される。
-  - chezmoi が実体コピーとして管理するファイル（`dot_agents/skills/<name>/SKILL.md` など）はリポジトリ内のソースを編集したあと `chezmoi apply` で反映する。
-  - 新規に dotfile を管理対象に加える場合は、`dot_<name>` ディレクトリ / `symlink_dot_<name>.tmpl` を作成し、必要に応じて `.chezmoiignore` を更新する。
+原則として **リポジトリ内のソースを編集 → `chezmoi apply` で反映**。
+
+- `.zshrc` を編集: `dot_zshrc` を編集 → `chezmoi apply`
+- `.gitconfig` を編集: `dot_gitconfig` を編集 → `chezmoi apply`
+- `.claude/settings.json` を編集: `dot_claude/settings.json` を編集 → `chezmoi apply`
+- `CLAUDE.md` / `AGENTS.md` を編集: `AGENTS.md` を編集（`CLAUDE.md` は symlink）→ `chezmoi apply`（`dot_claude/CLAUDE.md.tmpl` が AGENTS.md を include する）
+- skill を編集: `dot_agents/skills/<name>/` 配下を編集 → `chezmoi apply`
+
+### ホーム配下で直接編集した場合（逆方向の取り込み）
+
+Claude Code などのツールが `~/.claude/settings.json` を自動更新した場合、そのままだと source にドリフトする。次のいずれかで source へ取り込む:
+
+- `chezmoi re-add` — 現在のホーム配下の状態を source に再同期
+- `chezmoi diff` で差分確認後、`chezmoi merge <target>` で手動マージ
+
+### 新規ファイルの追加
+
+- real file として管理: `dot_<name>` を source に追加（例: `dot_tmux.conf`）
+- symlink として配置: `symlink_dot_<name>.tmpl` に target path を書く
+- chezmoi 管理外のファイル: リポジトリ直下に置き、`.chezmoiignore` に追記
+
+### パッケージ管理
+
+- CLIを追加/更新/削除: `aqua.yaml` を編集
+- runtimeを追加/更新/削除: `mise.toml` を編集
+- OS基盤または例外CLIを追加/更新/削除: `Brewfile` を編集
 
 ## chezmoi 運用メモ
 
 - `sourceDir` はこのリポジトリ自体（`~/src/github.com/towase/dotfiles`）。`install.sh` が `~/.config/chezmoi/chezmoi.toml` を生成する。
-- ホーム配下への配置は原則 symlink（`symlink_*.tmpl`）でこのリポジトリを指す。実体編集がそのまま反映される。
+- 原則 real file 管理（`dot_*`）。`symlink_*.tmpl` は topology 上どうしても symlink が必要な場合のみ使う（例: `~/.claude/skills` → `~/.agents/skills`）。
+- `CLAUDE.md` は `AGENTS.md` を単一ソースとし、`dot_claude/CLAUDE.md.tmpl` が chezmoi の include 関数で展開する。
 - リポジトリ直下の非 dotfile（`README.md` / `Brewfile` など）は `.chezmoiignore` で配置対象から除外している。
-- 現在の差分を確認するには `chezmoi diff`、反映は `chezmoi apply`。
+- 現在の差分確認: `chezmoi diff`、反映: `chezmoi apply`、逆取り込み: `chezmoi re-add`。
 
 ## 例外ルール
 
@@ -73,4 +93,4 @@
 
 - 旧管理の `volta` / `tfenv` / `gvm` から、runtime管理は `mise` に統一する。
 - 新規にruntime管理を追加する場合は、`mise` 以外を増やさない。
-- dotfile 管理は `setup.sh` の `ln -sf` 列挙から `chezmoi` に移行済み（issue #1）。
+- dotfile 管理は `setup.sh` の `ln -sf` 列挙から `chezmoi` に移行済み（issue #1）。初期は symlink 方式だったが、その後 real file + `chezmoi apply` フローに統一した。
