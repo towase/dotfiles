@@ -14,6 +14,7 @@ packages:
 - name: neovim/neovim@v0.11.6
 - name: suzuki-shunsuke/pinact@v3.9.0
 - name: BurntSushi/ripgrep@15.1.0
+- name: twpayne/chezmoi@v2.70.2
 - name: aquasecurity/trivy@v0.69.3
 - name: goodwithtech/dockle@v0.4.15
 - name: tfutils/tfenv@v3.0.0
