@@ -38,3 +38,4 @@ alias brl='brew leaves -r'
 
 # difit: aqua/Homebrew未対応のため npx で実行 (https://github.com/yoshiko-pg/difit)
 alias dif='npx difit@latest'
+alias claude='claude --effort max'
