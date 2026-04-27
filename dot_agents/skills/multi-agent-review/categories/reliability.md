@@ -1,10 +1,10 @@
 ---
 name: reliability
 kind: quality-attribute
-priority: 3
+priority: 4
 ---
 
-# reliability 観点（優先順位: 3）
+# reliability 観点（優先順位: 4）
 
 ## このカテゴリで見るもの
 失敗時の挙動（リトライ・フォールバック）、冪等性、データ整合性、可観測性（ログ・メトリクス・トレース）、障害分離。

@@ -1,10 +1,10 @@
 ---
 name: maintainability
 kind: quality-attribute
-priority: 5
+priority: 6
 ---
 
-# maintainability 観点（優先順位: 5）
+# maintainability 観点（優先順位: 6）
 
 ## このカテゴリで見るもの
 責務分離、ドメイン概念のモデリング、テスト容易性を中核に、可読性・命名・凝集度・依存方向・重複・ドキュメントを含めて「人間の判断が必要な設計上の健全性」を見る。

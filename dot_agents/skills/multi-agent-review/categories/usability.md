@@ -1,10 +1,10 @@
 ---
 name: usability
 kind: quality-attribute
-priority: 4
+priority: 5
 ---
 
-# usability 観点（優先順位: 4）
+# usability 観点（優先順位: 5）
 
 ## このカテゴリで見るもの
 使用者（エンドユーザー・API 呼び出し元・運用者）の体験。エラーメッセージ、UX フロー、API の使い勝手、ドキュメント整備、アクセシビリティ。
