@@ -1,6 +1,6 @@
 # categories/
 
-このディレクトリの各 `.md` ファイルは `multi-agent-review` スキルが sub-agent に渡す観点定義。
+このディレクトリの各 `.md` ファイルは `review-multi-agent` スキルが sub-agent に渡す観点定義。
 ファイル本文はそのまま sub-agent のプロンプトに埋め込まれる。
 
 ## ファイル種別
