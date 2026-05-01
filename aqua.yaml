@@ -7,6 +7,7 @@ packages:
 - name: aws/aws-cli@2.34.7
 - name: openai/codex@rust-v0.114.0
 - name: x-motemen/ghq@v1.9.4
+- name: junegunn/fzf@v0.72.0
 - name: jqlang/jq@jq-1.8.1
 - name: k1LoW/runn@v1.6.0
 - name: jesseduffield/lazygit@v0.60.0
