@@ -26,6 +26,8 @@ alias gba='git branch -a'
 alias gs='git switch'
 alias gsc='git switch -c'
 
+alias gcd='cd $(ghq list -p | fzf)'
+
 alias teee='tee >(pbcopy)'
 alias ze='nvim ~/.zshrc && source ~/.zshrc'
 alias ff='find . -type f'
