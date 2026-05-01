@@ -25,6 +25,7 @@ alias gb='git branch'
 alias gba='git branch -a'
 alias gs='git switch'
 alias gsc='git switch -c'
+alias gsf='git switch $(git branch --format="%(refname:short)" | fzf)'
 
 alias gcd='cd $(ghq list -p | fzf)'
 
