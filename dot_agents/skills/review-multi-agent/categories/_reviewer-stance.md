@@ -38,6 +38,7 @@ kind: common
 
 - 「良さそうな改善」を major に吊り上げない。該当しなければ minor か nit。
 - 暫定対応でリスクを封じられるなら、**根本原因の指摘は別 finding として minor** で残す。
+- **Severity threshold が指定されていても、判定基準を曲げない**。`blocker` / `major` のみを返す指示を受けた場合でも、本来 minor 相当の指摘を blocker / major に吊り上げてはいけない。閾値未満は素直に省略し、件数のみ Notes に書く（収集対象から落ちた事実は隠さない）。
 
 ---
 
