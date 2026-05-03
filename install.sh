@@ -30,5 +30,5 @@ EOF
 chezmoi apply
 
 # 5) self-updating CLI exception
-curl -fsSL https://claude.ai/install.sh | zsh
-curl -fsSL https://cli.kiro.dev/install | bash
+command -v claude &>/dev/null || curl -fsSL https://claude.ai/install.sh | zsh
+command -v kiro-cli &>/dev/null || curl -fsSL https://cli.kiro.dev/install | bash
