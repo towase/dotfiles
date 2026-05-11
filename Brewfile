@@ -17,3 +17,5 @@ brew "ni"
 # exception: aqua non-supported
 tap "k1LoW/tap"
 brew "k1LoW/tap/mo"
+# exception: aqua-distributed binary blocked by macOS Gatekeeper (revoked OpenAI signing cert)
+cask "codex"
