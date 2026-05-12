@@ -15,6 +15,7 @@ alias tf='terraform'
 alias ca='cargo'
 alias p='pnpm'
 alias cur='cursor'
+alias gcur='cursor $(ghq list -p | fzf)'
 
 alias gp='git pull'
 alias gll='git log --oneline'
