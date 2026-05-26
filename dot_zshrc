@@ -10,6 +10,10 @@ if [ -f ~/src/github.com/towase/dotfiles/alias.sh ]; then
     source ~/src/github.com/towase/dotfiles/alias.sh
 fi
 
+if [ -f ~/src/github.com/towase/dotfiles/functions.sh ]; then
+    source ~/src/github.com/towase/dotfiles/functions.sh
+fi
+
 eval "$(starship init zsh)"
 
 # Added by OrbStack: command-line tools and integration

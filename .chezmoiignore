@@ -4,6 +4,7 @@ Brewfile
 README.md
 aqua.yaml
 alias.sh
+functions.sh
 install.sh
 mise.toml
 setup.sh
