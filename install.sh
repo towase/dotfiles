@@ -22,13 +22,17 @@ ln -sf "${SCRIPT_DIR}/aqua.yaml" "${XDG_CONFIG_HOME:-$HOME/.config}/aquaproj-aqu
 mise trust -y "${SCRIPT_DIR}/mise.toml"
 mise install
 
-# 4) chezmoi: manage dotfile symlinks
+# 4) npm-only CLI exception via the repo-managed Node runtime
+# takt is distributed via npm, isn't in aqua's standard registry, and Homebrew's tact is unrelated
+mise x -- npm install -g takt@latest
+
+# 5) chezmoi: manage dotfile symlinks
 mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/chezmoi"
 cat > "${XDG_CONFIG_HOME:-$HOME/.config}/chezmoi/chezmoi.toml" <<EOF
 sourceDir = "${SCRIPT_DIR}"
 EOF
 chezmoi apply
 
-# 5) self-updating CLI exception
+# 6) self-updating CLI exception
 command -v claude &>/dev/null || curl -fsSL https://claude.ai/install.sh | zsh
 command -v kiro-cli &>/dev/null || curl -fsSL https://cli.kiro.dev/install | bash
