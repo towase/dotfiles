@@ -17,7 +17,7 @@ pnpick() {
     | jq -r '.[] | select(.name != null) | "\(.name)\t\(.path)"' \
     | fzf --delimiter=$'\t' --with-nth=1 \
           --prompt='package> ' \
-          --preview 'jq -r ".scripts // {} | keys[]?" {2}/package.json' \
+          --preview 'jq -r ".scripts // empty | keys[]" {2}/package.json' \
           --preview-window=right:50%:wrap) || return 130
   [[ -z "$pkg_line" ]] && return 130
 
