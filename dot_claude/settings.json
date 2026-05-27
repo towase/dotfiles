@@ -9,7 +9,7 @@
     "defaultMode": "auto"
   },
   "language": "Japanese",
-  "effortLevel": "high",
+  "effortLevel": "max",
   "skipAutoPermissionPrompt": true,
   "enabledPlugins": {
     "typescript-lsp@claude-plugins-official": true
