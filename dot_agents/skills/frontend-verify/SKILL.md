@@ -64,11 +64,35 @@ Phase 5 → 完了（人間向けチェックリスト提示）
 
 ### 0-2. 対象画面の特定
 
-引数で URL が指定されていればそれを採用。指定がない場合:
+引数で URL が指定されていればそれを採用。指定がない場合は次の手順で **候補 URL 集合** を導出し、最終的に 1〜3 個に絞る。
 
-1. 現在の差分（`git diff --name-only HEAD` または `git status -uno`）を読み、編集された route / component を特定
-2. ルーティング設定（`app/routes/*` / `pages/*` / `src/router/*` / Next.js App Router の `app/**/page.tsx` 等）と突合して候補 URL を導く
-3. 候補が複数 or 不明な場合は `AskUserQuestion` で確認
+#### 0-2-a. 差分ファイルの分類
+
+`git diff --name-only HEAD` を実行し、変更ファイルを 3 種類に分ける:
+
+| 種類 | 例 | 確認画面の導き方 |
+|------|----|----------------|
+| **route 直結ファイル** | `app/users/page.tsx` / `pages/login.tsx` / `src/views/Profile.vue` | フレームワーク規約から URL を直接導出 |
+| **共通コンポーネント** | `src/components/Button.tsx` / `lib/ui/Modal.vue` | `grep -rl "Button" src/pages src/app` 等で使用箇所を洗い出し、route 直結ファイルにマップ |
+| **グローバル波及** | `src/styles/global.css` / `tailwind.config.ts` / `app/layout.tsx` | プロジェクト全体に影響。代表画面を 1 つ選んで波及検査用に追加 |
+
+#### 0-2-b. 候補 URL 集合の算出
+
+- **直接対象**: route 直結ファイルから導いた URL（必ず含める）
+- **共通コンポーネント波及**: grep 結果のうち、直接対象に既に含まれていれば代表確認とみなして追加しない。**直接対象にカバーされない使用画面が 1 つだけ**ある場合は追加候補
+- **グローバル波及代表**: グローバル波及ファイルが含まれる場合、直接対象に入っていない代表画面（例: `/dashboard` など、未編集だがレイアウトを使う画面）を **1 つだけ** 波及検査用に追加
+
+#### 0-2-c. 1〜3 個への絞り込み
+
+候補集合のサイズで分岐:
+
+- **0 個**: 差分から URL が導けない → `AskUserQuestion` で URL を直接尋ねる
+- **1〜3 個**: そのまま全部採用する（性質が均一 = 全部直接対象 / 全部波及検査 のとき）。性質が混在（直接編集 + 波及検査）するときは `AskUserQuestion` で「直接編集のみ / 波及検査を含む / 1 画面だけ」のように提示してユーザーに選ばせる
+- **4 個以上**: `AskUserQuestion` で必ず絞らせる。選択肢は「主要画面 N 個 / 全部 / 個別選択」を用意
+
+#### 0-2-d. CSS や `*.css` のみの差分
+
+差分が CSS のみ（`*.tsx` / `*.vue` 等を含まない）の場合は、Phase 3-1 (`functional`) を skip 推奨（機能ロジックは変わらないため）。`skip:functional` を内部的に有効化して進める。CSS + tsx 混在の場合は skip しない。
 
 ### 0-3. 観点のスキップ判定
 
@@ -105,7 +129,12 @@ HTTP HEAD で 200 系が返るかも併せて確認。
 
 ### 2-1. MCP 利用可能性チェック
 
-`mcp__chrome-devtools__*` ツールが利用可能か確認。利用不可なら Phase 5 へ。
+以下の 2 段階で `mcp__chrome-devtools__*` ツールの利用可否を判定する:
+
+1. **deferred tool スキーマの取得試行**: `ToolSearch` を `query="select:mcp__chrome-devtools__list_pages"` で呼ぶ。スキーマが返らなければ「環境に MCP 自体が無い」と確定 → Phase 5 へ。
+2. **最小 MCP 呼び出しの実行**: スキーマが取れたら、実際に `mcp__chrome-devtools__list_pages` を 1 回呼ぶ。`InputValidationError` / `tool not found` / `MCP server not connected` などのエラーで返れば「サーバ未接続」 → Phase 5 へ。両方通ったときに利用可と確定する。
+
+判定の理由（スキーマ取得成功でも MCP server 未起動のケースがあるため、必ず実呼び出しまでクリアする）。
 
 ### 2-2. ページを開く
 
@@ -144,6 +173,12 @@ mcp__chrome-devtools__list_network_requests
 
 `skip:` で外されていない観点を順に実行する。各観点に入る直前に対応する `checklists/<name>.md` を Read して観点リストを取得する。
 
+### 複数 URL の場合
+
+Phase 0-2 で複数 URL が選ばれた場合、**URL ごとに Phase 2-2〜2-4 と Phase 3-1〜3-3 を繰り返す**。同じ MCP セッション内で `mcp__chrome-devtools__navigate_page` で URL を切り替えるだけでよい（新規タブは作らない）。findings は URL を含む `location` で記録し、Phase 4 で URL ごとに整理する。
+
+並列実行はしない（同じブラウザセッションで複数 URL を同時操作すると状態が混ざる）。直列で URL を切り替える。
+
 ### 3-1. functional チェック
 
 `checklists/functional.md` を Read。
@@ -152,7 +187,7 @@ mcp__chrome-devtools__list_network_requests
 
 - フォーム入力: `mcp__chrome-devtools__fill_form` → `mcp__chrome-devtools__click`（送信）→ `mcp__chrome-devtools__wait_for`（成功 or エラー）
 - バリデーション: 必須未入力で送信 → エラー表示を `take_screenshot` + `take_snapshot` で確認
-- プルダウン: `mcp__chrome-devtools__click`（select）→ 選択肢展開状態を撮影 → `mcp__chrome-devtools__select_page` で値選択
+- プルダウン: `mcp__chrome-devtools__click`（select 要素）→ 選択肢展開状態を `take_screenshot` → option を直接 `mcp__chrome-devtools__click` で選ぶ、または `mcp__chrome-devtools__fill_form` で `<select>` の `value` を指定する。`mcp__chrome-devtools__select_page` は **タブ切替用** で HTML `<select>` 操作には使わない
 - モーダル: 開く → 撮影 → 背景クリック / Escape で閉じる動作確認
 - ナビゲーション: 主要なリンクを 1〜2 本踏む
 
@@ -209,7 +244,7 @@ Phase 2-3 で取得した各 viewport のフルページスクショと、必要
 
 ライトモード固定。`prefers-color-scheme: dark` 分岐や `color-scheme: dark` は入れない。外部 CDN / Web フォント / JS への依存なし、`<style>` inline。
 
-セクション:
+セクション（**単一 URL の場合**）:
 
 1. **メタ情報表**: 対象 URL、viewport 一覧、実行日時、Finding 総数
 2. **TL;DR**: severity 別件数 + 重点対応候補（`blocker` > 0 なら blocker のみ、`blocker` = 0 なら major にフォールバック、どちらも 0 なら「該当なし」）
@@ -217,6 +252,14 @@ Phase 2-3 で取得した各 viewport のフルページスクショと、必要
 4. **観点別 Findings**: `functional` → `ux-principles` → `common-issues` の順、各カテゴリ内は severity 降順
    - 各 finding カードに `id` / severity バッジ / location / 指摘 / 修正案 / 該当スクショ
 5. **コンソール / ネットワークの異常ログ**（あれば）
+
+**複数 URL の場合**: 1 ファイルに統合する（URL ごとに別ファイルを作らない）。構成変更点:
+
+- メタ情報表に **対象 URL 一覧** を縦に列挙
+- TL;DR の下に **URL ナビ**（アンカーリンクで `#url-1` / `#url-2` ... へジャンプ）を追加
+- スクリーンショット一覧と観点別 Findings は **URL ごとにサブセクションに分割**（`### URL: /login` のように見出し）
+- Finding ID（F-001, F-002...）は **URL をまたいで通番**、`location` で URL を区別
+- TL;DR の重点対応候補にも URL を併記
 
 severity バッジ色: blocker=`#cf222e` / major=`#bc4c00` / minor=`#9a6700` / nit=`#656d76`。
 スクショは HTML から相対パスで参照する（同一ディレクトリに置く or `/tmp/frontend-verify-screenshots-{timestamp}/` を相対参照）。
@@ -234,13 +277,55 @@ severity バッジ色: blocker=`#cf222e` / major=`#bc4c00` / minor=`#9a6700` / n
 
 `chrome-devtools` MCP が利用できない、または開発サーバが起動できない場合、Claude は **観点リストを抜粋して人間に確認を依頼する** モードに切り替える。
 
-### 5-1. 観点リストの提示
+### 5-0. Phase 5 入り直後のアクション
 
-各 `checklists/<name>.md` から主要観点だけを抜粋し、`/tmp/frontend-verify-checklist-{timestamp}.html` にチェックリスト形式（チェックボックス UI）で書き出して `open`。
+Phase 5 は Phase 3 を経由しないため、観点ファイルがまだ Read されていない。Phase 5 に入った時点で **`skip:` 指定で外されていない観点ファイル全てを Read する**。
 
-### 5-2. 結果の受け取り
+```
+Read /Users/towase/.claude/skills/frontend-verify/checklists/functional.md
+Read /Users/towase/.claude/skills/frontend-verify/checklists/ux-principles.md
+Read /Users/towase/.claude/skills/frontend-verify/checklists/common-issues.md
+```
 
-ユーザーが各観点に「OK / NG / 気になる」を返した後、Claude は受け取った結果を最終レポート HTML に反映する。MCP が無いので動作根拠（スクショ）は人間の口頭報告のみ。
+並列 Read してよい。
+
+### 5-1. チェックリスト HTML の生成
+
+`/tmp/frontend-verify-checklist-{YYYYMMDD-HHMMSS}.html` に**人間がブラウザで答える**チェックリストを書き出す。
+
+**「主要観点」の抜粋ルール**: 各観点ファイル末尾の **severity 目安表で `blocker` / `major` に該当する項目を全て採用**。さらに、各観点ファイルの大セクション（A / B / C ...）から **最低 1 項目** は必ず含める（網羅性を担保）。`minor` / `nit` のみのセクションは 1 項目に絞る。
+
+**HTML の中身**（順序）:
+
+1. **メタ情報表**:
+   - 対象ファイル一覧（git 差分から）
+   - 推奨確認画面 URL
+   - 推奨 viewport（mobile / tablet / desktop）
+   - **モード理由**: 「chrome-devtools MCP が利用不可」または「開発サーバ起動失敗（理由: {コマンド} / {終了コード} / {ログ末尾}）」を明示
+2. **観点別チェックリスト**: functional → ux-principles → common-issues の順。各項目に
+   - チェックボックス（「確認した / 未確認」を兼ねる）
+   - ラジオ: 「OK / NG / 気になる」
+   - 自由記述コメント欄（`<textarea>`）
+   - 参照元（観点ファイルの節番号 — 例: `functional.md A-1`）
+   - severity 目安バッジ（該当 severity を `4-2` の色規約と同じ色で表示）
+3. **ユーザーへの案内文**: 「ブラウザで確認した後、結果をチャットで報告してください」
+
+ライトモード固定、外部依存なし、`<style>` inline、フォーム POST 先は持たない（ユーザーは口頭でチャットに報告）。
+
+書き出し後 `open <path>` で自動表示。
+
+### 5-2. ユーザー結果の受け取り + 最終レポート出力
+
+ユーザーがチェックリストを見て「OK / NG / 気になる + コメント」を返した後、最終レポートを Phase 4 と同じ命名規則で `/tmp/frontend-verify-{YYYYMMDD-HHMMSS}.html` に書き出す（チェックリストの `-checklist-` を除いた名前）。
+
+最終レポートの構成は **Phase 4-2 と同じ**（メタ情報 / TL;DR / 観点別 Findings）。ただし以下の差分:
+
+- **スクリーンショット一覧セクションは省略**（MCP 不在のため取得していない）
+- メタ情報表に **モード**: `fallback (MCP 不在)` または `fallback (サーバ起動失敗)` を明記
+- Findings は「NG」「気になる」と回答された項目を finding 化。severity は対応する観点ファイルの目安表に従う
+- 各 finding カードの末尾に「**根拠**: ユーザー口頭報告」と明記（Phase 4 ではスクショだが、Phase 5 では人間報告が根拠）
+
+書き出し後 `open` で表示し、コンソールには 5 行以内のサマリ（パス / モード / Findings 件数）を出す。
 
 ---
 
@@ -250,10 +335,12 @@ severity バッジ色: blocker=`#cf222e` / major=`#bc4c00` / minor=`#9a6700` / n
 |--------|------|
 | 開発サーバが既に立っている | 起動スキップ、既存ポートに接続 |
 | 認証が必要な画面 | ユーザーに認証情報入力を依頼するか、認証済みセッションがある前提で進む |
-| 複数ページ / 複数コンポーネントを編集 | Phase 0-2 で代表 URL を 1〜3 個に絞る。多すぎる場合は `AskUserQuestion` で選ばせる |
+| 複数ページ / 複数コンポーネントを編集 | Phase 0-2-c の絞り込みロジックに従う。性質が混在 or 4 個以上なら `AskUserQuestion` で確定させる |
+| 共通コンポーネント変更（`src/components/Button.tsx` 等） | Phase 0-2-a で `grep` し、route 直結ファイルにマップ。直接対象に含まれていれば代表確認とみなして追加しない |
+| グローバル波及変更（`global.css` / `layout.tsx` / `tailwind.config` 等） | Phase 0-2-b で「波及検査用代表画面」を 1 つだけ追加 |
 | スクショ撮影に失敗 | エラー内容を finding に含め、スクショ不在を明記 |
 | chrome-devtools MCP が応答しない / タイムアウト | Phase 5 へフォールバック |
-| 差分が CSS のみ（HTML 構造に変更なし） | 該当画面のスクショ + `ux-principles` + `common-issues` のみ実行（`functional` は skip 推奨） |
+| 差分が CSS のみ（HTML 構造に変更なし） | Phase 0-2-d に従う（`functional` を skip）。CSS + tsx 混在の場合は skip しない |
 | Storybook / 部分コンポーネントのみ存在し、ホスト画面 URL が無い | Storybook URL を対象に取る（`http://localhost:6006/?path=/story/...`） |
 | `/tmp` への書き込みに失敗 | カレントディレクトリ直下に `frontend-verify-{...}.html` をフォールバック出力 |
 
