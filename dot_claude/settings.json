@@ -8,10 +8,10 @@
     ],
     "defaultMode": "auto"
   },
-  "language": "Japanese",
-  "effortLevel": "max",
-  "skipAutoPermissionPrompt": true,
   "enabledPlugins": {
     "typescript-lsp@claude-plugins-official": true
-  }
+  },
+  "language": "Japanese",
+  "effortLevel": "medium",
+  "skipAutoPermissionPrompt": true
 }
