@@ -43,3 +43,6 @@ fi
 
 # claude
 export PATH="$HOME/.local/bin:$PATH"
+
+# zoxide
+eval "$(zoxide init zsh)"
