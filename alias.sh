@@ -44,5 +44,5 @@ alias brl='brew leaves -r'
 # difit: aqua/Homebrew未対応のため npx で実行 (https://github.com/yoshiko-pg/difit)
 alias dif='npx difit@latest'
 alias ccusage='npx ccusage@latest'
-alias cc='claude'
+alias cc='claude --effort xhigh'
 alias ccmax='claude --model claude-opus-4-7 --effort max'
