@@ -12,6 +12,7 @@
     "typescript-lsp@claude-plugins-official": true
   },
   "language": "Japanese",
+  "model": "claude-opus-4-7",
   "effortLevel": "medium",
   "skipAutoPermissionPrompt": true
 }
