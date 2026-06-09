@@ -46,3 +46,9 @@ export PATH="$HOME/.local/bin:$PATH"
 
 # zoxide
 eval "$(zoxide init zsh)"
+
+# gcloud
+if [ -f "${XDG_DATA_HOME:-$HOME/.local/share}/google-cloud-sdk/path.zsh.inc" ]; then
+  source "${XDG_DATA_HOME:-$HOME/.local/share}/google-cloud-sdk/path.zsh.inc"
+  source "${XDG_DATA_HOME:-$HOME/.local/share}/google-cloud-sdk/completion.zsh.inc"
+fi

@@ -35,4 +35,26 @@ chezmoi apply
 
 # 6) self-updating CLI exception
 command -v claude &>/dev/null || curl -fsSL https://claude.ai/install.sh | zsh
-command -v kiro-cli &>/dev/null || curl -fsSL https://cli.kiro.dev/install | bash
+#command -v kiro-cli &>/dev/null || curl -fsSL https://cli.kiro.dev/install | bash
+
+# 7) gcloud: self-updating SDK installed from the official tarball
+#    (aqua/brew don't carry the component-managed SDK; kept current via `gcloud components update`.
+#     PATH and shell completion are wired up in dot_zshrc, so install.sh skips rc-file edits.)
+GCLOUD_SDK_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/google-cloud-sdk"
+if ! command -v gcloud &>/dev/null && [[ ! -x "${GCLOUD_SDK_DIR}/bin/gcloud" ]]; then
+  case "$(uname -sm)" in
+    "Darwin arm64")  gcloud_archive="google-cloud-cli-darwin-arm.tar.gz" ;;
+    "Darwin x86_64") gcloud_archive="google-cloud-cli-darwin-x86_64.tar.gz" ;;
+    "Linux x86_64")  gcloud_archive="google-cloud-cli-linux-x86_64.tar.gz" ;;
+    "Linux aarch64") gcloud_archive="google-cloud-cli-linux-arm.tar.gz" ;;
+    *) echo "gcloud: unsupported platform: $(uname -sm)" >&2; exit 1 ;;
+  esac
+  mkdir -p "$(dirname "${GCLOUD_SDK_DIR}")"
+  curl -fsSL "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/${gcloud_archive}" \
+    | tar -xz -C "$(dirname "${GCLOUD_SDK_DIR}")"
+  "${GCLOUD_SDK_DIR}/install.sh" \
+    --quiet \
+    --usage-reporting=false \
+    --path-update=false \
+    --command-completion=false
+fi
