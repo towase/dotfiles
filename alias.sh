@@ -19,6 +19,7 @@ alias cur='cursor'
 alias gcur='cursor $(ghq list -p | fzf)'
 
 alias gp='git pull'
+alias gpp='gp && gprune'
 alias gll='git log --oneline'
 alias glf='git log --pretty=fuller'
 alias gprune='git fetch --prune && git branch -vv | grep -v "^+" | grep ": gone]" | awk '\''{print $1}'\'' | xargs -I{} git branch -D {}'
