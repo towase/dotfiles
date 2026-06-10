@@ -11,11 +11,12 @@ Generate draw.io diagrams as native `.drawio` files. Optionally export to PNG, S
 
 1. **Generate draw.io XML** in mxGraphModel format for the requested diagram
 2. **Write the XML** to a `.drawio` file in the current working directory using the Write tool
-3. **Handle the requested output format**:
+3. **Verify the layout** — render the diagram, check for overlapping nodes, clipped text, and elements spilling outside their container or off-canvas, and fix any problems before producing output (see [Layout verification](#layout-verification)). Always do this, regardless of the requested output format
+4. **Handle the requested output format**:
    - `png` / `svg` / `pdf` → locate the draw.io CLI (see [draw.io CLI](#drawio-cli)), export with `--embed-diagram`, then delete the source `.drawio` file. If the CLI is not found, keep the `.drawio` file and tell the user they can install the draw.io desktop app to enable export, or use `url` mode instead, or open the `.drawio` file directly
    - `url` → generate a browser URL from the XML and open it (see [Browser URL output](#browser-url-output)). Keep the `.drawio` file as a persistent local copy
    - *(no format)* → no extra step; the `.drawio` file is the output
-4. **Open the result** — the exported file if exported, the browser URL if `url`, or the `.drawio` file otherwise. If the open command fails, print the file path (or URL) so the user can open it manually
+5. **Open the result** — the exported file if exported, the browser URL if `url`, or the `.drawio` file otherwise. If the open command fails, print the file path (or URL) so the user can open it manually
 
 ## Choosing the output format
 
@@ -216,6 +217,57 @@ Key flags:
 cmd.exe /c start "" "$(wslpath -w diagram.drawio)"
 ```
 
+## Layout verification
+
+Always verify the rendered layout before producing the final output — even when no export was requested. Generated coordinates frequently produce overlapping nodes, clipped labels, or elements that spill outside their container, and these are only obvious once rendered.
+
+### 1. Render a check image
+
+If the draw.io CLI is available (see [draw.io CLI](#drawio-cli)), export a throwaway PNG and inspect it visually:
+
+```bash
+<DRAWIO_CMD> -x -f png -b 10 -o <name>.layout-check.png <name>.drawio
+```
+
+`-e` is not needed for a throwaway check. Then **Read the PNG with the Read tool** and inspect it.
+
+- If the requested output is itself an image export (`png` / `svg` / `pdf`), inspect that exported file instead of rendering a second time.
+- If the CLI is not available, skip rendering and use the geometry fallback in step 3 instead.
+
+### 2. What to look for (visual)
+
+- Nodes overlapping so shapes or labels are obscured (重なって見えない)
+- Text clipped or overflowing its node — label wider or taller than the shape
+- Edges passing through unrelated nodes; edge labels overlapping nodes or other labels
+- Children spilling outside their container / swimlane bounds
+- Elements cut off at the canvas edge, or floating far from the rest
+- Cramped spacing — sibling nodes touching with no gap
+
+### 3. Geometry fallback (no renderer)
+
+When the CLI is unavailable, parse the XML and check each cell's `mxGeometry` (x / y / width / height) numerically:
+
+- For each pair of vertex cells, test whether their bounding boxes intersect → overlap
+- Estimate label width (~7–8px per character at the default font) and flag labels wider than their node's `width`
+- Verify each child's geometry fits inside its parent container's geometry
+- Require a minimum gap between sibling nodes (≥40px is a safe default)
+
+### 4. Fix and re-check
+
+For each problem found, edit the XML:
+
+- Reposition overlapping nodes and re-flow rows/columns to add spacing
+- Widen or heighten nodes to fit their text, or shorten the label
+- Re-route edges (add waypoints) or adjust edge style to avoid crossings
+- Enlarge containers to enclose all children
+- Recenter or expand the diagram so nothing is clipped at the canvas edge
+
+Re-write the `.drawio` file and repeat from step 1. Stop when the layout is clean or after 3 iterations — if issues remain, tell the user what is still imperfect rather than looping further.
+
+### 5. Clean up
+
+Delete the temporary check image (`<name>.layout-check.png`). Keep the `.drawio` file for the output steps that follow.
+
 ## File naming
 
 - Use a descriptive filename based on the diagram content (e.g., `login-flow`, `database-schema`)
@@ -258,6 +310,7 @@ https://raw.githubusercontent.com/jgraph/drawio-mcp/main/shared/xml-reference.md
 | draw.io CLI not found | Desktop app not installed or not on PATH | Keep the `.drawio` file and tell the user to install the draw.io desktop app, use `url` mode instead, or open the file manually |
 | Export produces empty/corrupt file | Invalid XML (e.g. double hyphens in comments, unescaped special characters) | Validate XML well-formedness before writing; see the XML well-formedness section below |
 | Diagram opens but looks blank | Missing root cells `id="0"` and `id="1"` | Ensure the basic mxGraphModel structure is complete |
+| Elements overlap, text is clipped, or nodes spill outside their container | Coordinates too close, nodes too small for labels, or children exceed container bounds | Run [Layout verification](#layout-verification): render, inspect, adjust coordinates/sizes, re-check |
 | Edges not rendering | Edge mxCell is self-closing (no child mxGeometry element) | Every edge must have `<mxGeometry relative="1" as="geometry" />` as a child element |
 | File won't open after export | Incorrect file path or missing file association | Print the absolute file path so the user can open it manually |
 | Browser opens with empty diagram in `url` mode | `cmd.exe` stripped the `#create=...` fragment | Use the `.url` temp-file workaround on Windows/WSL2 (see [Opening the URL](#opening-the-url)) — never pass the URL directly to `cmd.exe /c start` |
