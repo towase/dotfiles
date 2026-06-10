@@ -11,6 +11,6 @@
   "enabledPlugins": {
     "typescript-lsp@claude-plugins-official": true
   },
-  "language": "Japanese",
+  "language": "",
   "skipAutoPermissionPrompt": true
 }
