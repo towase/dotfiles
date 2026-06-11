@@ -10,3 +10,4 @@ install.sh
 mise.toml
 setup.sh
 skills-lock.json
+.claude/settings.json
