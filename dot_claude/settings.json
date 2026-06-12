@@ -12,5 +12,9 @@
     "typescript-lsp@claude-plugins-official": true
   },
   "language": "",
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh"
+  }
 }
