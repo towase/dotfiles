@@ -19,6 +19,12 @@
       "pattern": "(?<owner>[\\w.-]+)/(?<repo>[\\w.-]+)#(?<num>\\d+)",
       "url": "https://github.com/{owner}/{repo}/issues/{num}",
       "label": "{owner}/{repo}#{num}"
+    },
+    {
+      "type": "regex",
+      "pattern": "https://github\\.com/(?<owner>[\\w.-]+)/(?<repo>[\\w.-]+)/(?<kind>issues|pull)/(?<num>\\d+)",
+      "url": "https://github.com/{owner}/{repo}/{kind}/{num}",
+      "label": "{owner}/{repo}#{num}"
     }
   ],
   "statusLine": {
