@@ -14,6 +14,8 @@ brew "hstr"
 brew "tree"
 # exception: aqua package not found for ni
 brew "ni"
+# exception: aqua non-supported; PostgreSQL client only (psql/pg_dump). keg-only, so force-link
+brew "libpq", link: true
 # exception: aqua non-supported
 tap "k1LoW/tap"
 brew "k1LoW/tap/mo"
