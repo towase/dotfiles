@@ -1,0 +1,54 @@
+eval "$(/opt/homebrew/bin/brew shellenv)"
+export PATH="$HOME/go/bin:$PATH"
+
+export PATH="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin:$PATH"
+export AQUA_GLOBAL_CONFIG=${AQUA_GLOBAL_CONFIG:-}:${XDG_CONFIG_HOME:-$HOME/.config}/aquaproj-aqua/aqua.yaml
+
+eval "$(mise activate zsh)"
+
+if [ -f ~/src/github.com/towase/dotfiles/alias.sh ]; then
+    source ~/src/github.com/towase/dotfiles/alias.sh
+fi
+
+if [ -f ~/src/github.com/towase/dotfiles/functions.sh ]; then
+    source ~/src/github.com/towase/dotfiles/functions.sh
+fi
+
+eval "$(starship init zsh)"
+
+# Added by OrbStack: command-line tools and integration
+source ~/.orbstack/shell/init.zsh 2>/dev/null || :
+
+# HSTR configuration - add this to ~/.zshrc
+alias hh=hstr                    # hh to be alias for hstr
+setopt histignorespace           # skip cmds w/ leading space from history
+export HSTR_CONFIG=hicolor       # get more colors
+bindkey -s "\C-r" "\C-a hstr -- \C-j"     # bind hstr to Ctrl-r (for Vi mode check doc)
+
+# pnpm
+export PNPM_HOME="$HOME/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+
+# for zsh-completions
+if type brew &>/dev/null; then
+    FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
+
+    autoload -Uz compinit
+    compinit -u
+fi
+
+# claude
+export PATH="$HOME/.local/bin:$PATH"
+
+# zoxide
+eval "$(zoxide init zsh)"
+
+# gcloud
+if [ -f "${XDG_DATA_HOME:-$HOME/.local/share}/google-cloud-sdk/path.zsh.inc" ]; then
+  source "${XDG_DATA_HOME:-$HOME/.local/share}/google-cloud-sdk/path.zsh.inc"
+  source "${XDG_DATA_HOME:-$HOME/.local/share}/google-cloud-sdk/completion.zsh.inc"
+fi

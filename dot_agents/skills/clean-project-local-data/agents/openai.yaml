@@ -1,0 +1,7 @@
+interface:
+  display_name: "Clean Project Local Data"
+  short_description: "Safely audit and remove local project data"
+  default_prompt: "Use $clean-project-local-data to audit and safely remove local data for this completed project."
+
+policy:
+  allow_implicit_invocation: false

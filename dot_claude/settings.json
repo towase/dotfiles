@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(open /tmp/*)"
+    ],
+    "defaultMode": "auto"
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh"
+  },
+  "footerLinksRegexes": [
+    {
+      "type": "regex",
+      "pattern": "(?<owner>[\\w.-]+)/(?<repo>[\\w.-]+)#(?<num>\\d+)",
+      "url": "https://github.com/{owner}/{repo}/issues/{num}",
+      "label": "{owner}/{repo}#{num}"
+    },
+    {
+      "type": "regex",
+      "pattern": "https://github\\.com/(?<owner>[\\w.-]+)/(?<repo>[\\w.-]+)/(?<kind>issues|pull)/(?<num>\\d+)",
+      "url": "https://github.com/{owner}/{repo}/{kind}/{num}",
+      "label": "{owner}/{repo}#{num}"
+    }
+  ],
+  "enabledPlugins": {
+    "typescript-lsp@claude-plugins-official": true
+  },
+  "language": "",
+  "effortLevel": "high",
+  "advisorModel": "fable",
+  "tui": "fullscreen",
+  "skipAutoPermissionPrompt": true,
+  "model": "claude-fable-5[1m]"
+}

@@ -1,0 +1,13 @@
+AGENTS.md
+CLAUDE.md
+Brewfile
+README.md
+aqua.yaml
+alias.sh
+functions.sh
+functions/**
+install.sh
+mise.toml
+setup.sh
+skills-lock.json
+.claude/settings.json
