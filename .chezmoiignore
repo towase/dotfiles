@@ -11,3 +11,4 @@ mise.toml
 setup.sh
 skills-lock.json
 .claude/settings.json
+.gitconfig
