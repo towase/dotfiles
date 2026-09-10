@@ -91,3 +91,9 @@ KPI やカバレッジ目標が与えられたら、達成するまで試行す�
 - 作業開始時に現在のブランチが main または master の場合、必ず新しいフィーチャーブランチを作成してから作業を始めること
 - ブランチ名は作業内容を反映した名前にすること（例: feat/add-login, fix/header-style）
 - main / master ブランチに直接コミットしないこと
+
+## Git worktree ルール
+- `git worktree add` で worktree を作るときは、Claude Code 組み込みの worktree 機能（`claude --worktree` / EnterWorktree）と同じ `<リポジトリルート>/.claude/worktrees/<名前>` に作る。リポジトリの兄弟ディレクトリ（`../<repo>-<名前>`）には作らない。ghq 管理下（`~/src`）に偽リポジトリとして並んでしまうため
+- `.claude/worktrees/` が `.gitignore` に無いリポジトリでは `.git/info/exclude` に追加する。共有の `.gitignore` は指示なしに変更しない
+- worktree 内のファイルは `.claude/worktrees/<名前>/` を含む絶対パスで操作する。メインツリーの絶対パスと取り違えると別ブランチの作業コピーを編集してしまう
+- 不要になった worktree は `git worktree remove [--force] <path>` で削除する。ディレクトリだけ消すと worktree の登録が残る

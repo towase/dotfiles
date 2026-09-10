@@ -39,7 +39,7 @@ gh api repos/{owner}/{repo}/issues/{番号}/comments --paginate --jq '.[] | {use
 
 - **ベースブランチをリポジトリの規約から確定させてから切る**（main とは限らない。デプロイ先とブランチの対応が memory / CLAUDE.md にあれば従う）
 - ブランチ名は作業内容を反映（`feat/...`, `fix/...`）し、issue 番号を含める
-- 並行作業がある場合や依頼に「worktree で」とある場合は worktree を作る。worktree 利用時は絶対パスの取り違え・.env 不在などの既知の落とし穴（memory 参照）に注意する
+- 並行作業がある場合や依頼に「worktree で」とある場合は worktree を作る。作成先は AGENTS.md の「Git worktree ルール」どおり `<リポジトリルート>/.claude/worktrees/<名前>`（兄弟ディレクトリ `../` には作らない）。worktree 利用時は絶対パスの取り違え・.env 不在などの既知の落とし穴（memory 参照）に注意する
 
 ### 5. workplan の作成
 
