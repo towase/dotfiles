@@ -21,5 +21,7 @@ tap "k1LoW/tap"
 brew "k1LoW/tap/mo"
 # exception: aqua-distributed binary blocked by macOS Gatekeeper (revoked OpenAI signing cert)
 cask "codex"
+# exception: user-requested Homebrew Cask installation for Devin CLI
+cask "devin-cli"
 # exception: GUI app — drawio skill の PNG/SVG/PDF エクスポートに使う draw.io Desktop CLI バックエンド
 cask "drawio"
