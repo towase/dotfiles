@@ -26,5 +26,4 @@ description: 既に手元にある論点リストを 1 つずつユーザーに�
 ## 使い分け
 
 - 論点を AI に発見してほしい → `grill-me`
-- GitHub issue コメント起点 → `handle-issue-comment`
 - 既に論点リストがある → このスキル
