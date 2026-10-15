@@ -12,4 +12,6 @@ description: 地頭のよい知的好奇心が旺盛な 10 歳向けの図解説
 
 大きな図と短い文で構成した HTML Artifact として書く。
 
+SVG 図を描くときは `svg text { fill: currentColor; }` を入れ、文字・線・塗りの色はすべて CSS 変数か `currentColor` で指定して、ライト/ダーク両方で読めるようにする。
+
 トピック: $ARGUMENTS
