@@ -6,8 +6,10 @@ description: |
   （プルダウン折り返し・モーダル位置・レスポンシブ崩れ・フォーカス可視性など）を
   観点別に判定し、スクリーンショット付き HTML レポートを出力する skill。
   「フロントエンド実装後の確認」「UI チェック」「動作確認して」「実装後のチェック」
-  「ブラウザで確認して」と言及された際、または HTML / CSS / *.jsx / *.tsx / *.vue /
-  *.svelte / *.astro の編集直後のセルフチェックとして使用する。
+  「ブラウザで確認して」と言及された際、またはリポジトリ内のフロントエンドアプリの
+  ソースコード（HTML / CSS / *.jsx / *.tsx / *.vue / *.svelte / *.astro）を編集した
+  直後のセルフチェックとして使用する。ユーザーへの報告・確認のために書き出す HTML
+  （/tmp/*.html のレポート、Artifact、説明用 skill の出力など）の作成・編集では使用しない。
 argument-hint: "[url-or-path] [viewport:mobile,tablet,desktop] [skip:functional|ux|common]"
 ---
 
@@ -21,9 +23,14 @@ argument-hint: "[url-or-path] [viewport:mobile,tablet,desktop] [skip:functional|
 
 ## いつ使うか
 
-- フロントエンドコード（HTML / CSS / *.jsx / *.tsx / *.vue / *.svelte / *.astro 等）を編集した直後
+- リポジトリ内のフロントエンドアプリのソースコード（HTML / CSS / *.jsx / *.tsx / *.vue / *.svelte / *.astro 等）を編集した直後
 - ユーザーが「動作確認して」「UI チェックして」「フロントエンド実装後の確認」「ブラウザで確認して」と明示した時
 - PR 作成前のセルフチェックとして
+
+## 使わないとき
+
+- ユーザーへの報告・確認のために書き出す HTML（`/tmp/*.html` のレポートや選択肢の提示、Artifact、eli 系 skill の説明ページなど）を作成・編集したとき。アプリの画面ではないため、`open` での目視確認で足りる
+- 本 skill 自身が出力するレポート / チェックリスト HTML
 
 ## 観点ファイル
 
