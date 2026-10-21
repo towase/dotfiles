@@ -31,6 +31,7 @@ KPI やカバレッジ目標が与えられたら、達成するまで試行す�
 - HTML では文章だけで済ませず、構成図・フロー図・比較表・タイムラインなどの図解を使って、関係や流れがひと目でわかるようにする。
 - HTML ファイルを書き出したら、続けて Bash ツールで `open <filepath>` を実行し、デフォルトブラウザで自動的に開く。ユーザーにコピペさせない。コンソールには書き出したパスのみ伝える。
 - HTML のスタイルはライトモード固定にする。`prefers-color-scheme: dark` などのダークモード対応や `color-scheme: dark` 指定は入れず、白系の背景と濃色のテキストで統一する。
+- HTML の書式とデザインは `html-report` skill（`~/.agents/skills/html-report/`）に従う。Claude の HTML Artifact と同じ設計規約（`:root` トークン配色・和文 Google Fonts・カード / チップ / SVG 図解の部品・レスポンシブ）を、同梱の `template.html` を起点にローカルファイルで再現する。
 
 ## 貼り付け用コメントの出力
 

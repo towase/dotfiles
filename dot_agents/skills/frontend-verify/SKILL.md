@@ -249,15 +249,15 @@ Phase 2-3 で取得した各 viewport のフルページスクショと、必要
 
 ### 4-2. HTML レポートの構成
 
-ライトモード固定。`prefers-color-scheme: dark` 分岐や `color-scheme: dark` は入れない。外部 CDN / Web フォント / JS への依存なし、`<style>` inline。
+デザインは **html-report skill**（`~/.agents/skills/html-report/`）に従う。`template.html` を Read して `<head>`（meta・Google Fonts の `<link>`・`<style>`）と部品をそのまま使い、ライトモード固定のまま書く。外部依存は Google Fonts のみ（フォールバック付き）。JS は使わない。
 
 セクション（**単一 URL の場合**）:
 
 1. **メタ情報表**: 対象 URL、viewport 一覧、実行日時、Finding 総数
 2. **TL;DR**: severity 別件数 + 重点対応候補（`blocker` > 0 なら blocker のみ、`blocker` = 0 なら major にフォールバック、どちらも 0 なら「該当なし」）
-3. **スクリーンショット一覧**: 各 viewport × 主要状態（initial / フォーム入力中 / プルダウン展開 / モーダル / フォーカス）をサムネイル + クリックで拡大
+3. **スクリーンショット一覧**: 各 viewport × 主要状態（initial / フォーム入力中 / プルダウン展開 / モーダル / フォーカス）をサムネイル（`.cards` 内の `img`）で並べ、拡大は画像ファイルへの `<a href>` で行う（JS は使わない）
 4. **観点別 Findings**: `functional` → `ux-principles` → `common-issues` の順、各カテゴリ内は severity 降順
-   - 各 finding カードに `id` / severity バッジ / location / 指摘 / 修正案 / 該当スクショ
+   - 各 finding カードは `.card`。見出し行 `.card-h` に `id` / severity バッジ（`.chip`）/ location（`.cite`）、本文に指摘 / 修正案（`pre`）/ 該当スクショ
 5. **コンソール / ネットワークの異常ログ**（あれば）
 
 **複数 URL の場合**: 1 ファイルに統合する（URL ごとに別ファイルを作らない）。構成変更点:
@@ -268,7 +268,7 @@ Phase 2-3 で取得した各 viewport のフルページスクショと、必要
 - Finding ID（F-001, F-002...）は **URL をまたいで通番**、`location` で URL を区別
 - TL;DR の重点対応候補にも URL を併記
 
-severity バッジ色: blocker=`#cf222e` / major=`#bc4c00` / minor=`#9a6700` / nit=`#656d76`。
+severity バッジは template の `.chip` で、色はトークンに任せる: blocker=`.chip.bad` / major=`.chip.major` / minor=`.chip.warn` / nit=`.chip.off`。色の直書きはしない。
 スクショは HTML から相対パスで参照する（同一ディレクトリに置く or `/tmp/frontend-verify-screenshots-{timestamp}/` を相対参照）。
 
 ### 4-3. レポートを開く
@@ -314,10 +314,10 @@ Read /Users/towase/.claude/skills/frontend-verify/checklists/common-issues.md
    - ラジオ: 「OK / NG / 気になる」
    - 自由記述コメント欄（`<textarea>`）
    - 参照元（観点ファイルの節番号 — 例: `functional.md A-1`）
-   - severity 目安バッジ（該当 severity を `4-2` の色規約と同じ色で表示）
+   - severity 目安バッジ（`4-2` と同じ `.chip` の対応）
 3. **ユーザーへの案内文**: 「ブラウザで確認した後、結果をチャットで報告してください」
 
-ライトモード固定、外部依存なし、`<style>` inline、フォーム POST 先は持たない（ユーザーは口頭でチャットに報告）。
+デザインは `4-2` と同じく html-report の template.html に従う（checkbox / radio / textarea の既定スタイルも template に含まれる）。フォーム POST 先は持たない（ユーザーは口頭でチャットに報告）。
 
 書き出し後 `open <path>` で自動表示。
 

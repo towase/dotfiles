@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>html-report テンプレート</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@700;900&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+<style>
+/* Layout: 1 カラムの報告書（960px）。ヘッダー → 要点 → 本文の節 → 結論 → 根拠 の順に読み下す。図と表だけ横スクロール可 */
+:root {
+  --bg: #f4f5f7;
+  --paper: #ffffff;
+  --ink: #1b2130;
+  --muted: #5d6677;
+  --rule: #d8dde6;
+  --accent: #2a52b5;  --accent-soft: #e5ebf9;
+  --good: #22744a;    --good-soft: #e2f1e8;
+  --warn: #8f5d00;    --warn-soft: #faefd6;
+  --bad: #b3261e;     --bad-soft: #f9e3e0;
+  --major: #a84b0c;   --major-soft: #fbe8da;
+  --off: #7b8494;     --off-soft: #eceef3;
+  --code-bg: #eaedf2;
+  --display: "Zen Kaku Gothic New", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  --body: "Noto Sans JP", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+
+/* Artifact の publish 時に付くリセット相当 */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15.5px; line-height: 1.8; -webkit-font-smoothing: antialiased; }
+img, svg { max-width: 100%; }
+[hidden] { display: none !important; }
+
+/* 骨格 */
+.page { max-width: 960px; margin: 0 auto; padding-inline: clamp(16px, 4vw, 32px); padding-block: 40px 72px; display: grid; gap: 48px; }
+header.head { display: grid; gap: 10px; padding-bottom: 24px; border-bottom: 1px solid var(--rule); }
+section { display: grid; gap: 14px; min-width: 0; }
+.sec-h { display: grid; gap: 4px; }
+.sec-h p { color: var(--muted); font-size: 14px; max-width: 46rem; }
+footer.foot { border-top: 1px solid var(--rule); padding-top: 16px; font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
+footer.foot ul { margin: 0; padding-left: 1.2em; }
+
+/* 文字 */
+h1, h2, h3 { font-family: var(--display); font-weight: 700; margin: 0; line-height: 1.4; text-wrap: balance; }
+h1 { font-size: clamp(26px, 4vw, 32px); font-weight: 900; letter-spacing: .01em; }
+h2 { font-size: 21px; }
+h3 { font-size: 16px; }
+p, ul, ol { margin: 0; }
+ul, ol { padding-left: 1.3em; }
+.prose { max-width: 46rem; min-width: 0; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; color: var(--muted); }
+.lede { font-size: 17px; max-width: 40em; }
+.meta { font-size: 13px; color: var(--muted); }
+.muted { color: var(--muted); }
+a { color: var(--accent); }
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* コード・引用 */
+code { font-family: var(--mono); font-size: .86em; }
+:not(pre) > code { background: var(--code-bg); border-radius: 4px; padding: .1em .35em; overflow-wrap: anywhere; }
+pre { margin: 0; background: var(--code-bg); border-radius: 8px; padding: 14px 16px; overflow-x: auto; font-size: 13px; line-height: 1.65; }
+pre code { font-size: inherit; }
+.cite { font-family: var(--mono); font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+.quote { border-left: 3px solid var(--accent); padding-left: 14px; }
+
+/* メタ情報（対象・日時・SHA など） */
+.kv { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 20px; margin: 0; font-size: 14px; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+
+/* 要点の数字 */
+.facts { display: flex; flex-wrap: wrap; gap: 10px 28px; }
+.fact { display: grid; min-width: 0; }
+.fact b { font-family: var(--display); font-size: 26px; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.fact span { font-size: 13px; color: var(--muted); }
+
+/* カード */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.card { background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.card h3 { font-size: 15px; }
+.card p { font-size: 14px; }
+.card.good { border-left: 4px solid var(--good); }
+.card.warn { border-left: 4px solid var(--warn); }
+.card.major { border-left: 4px solid var(--major); }
+.card.bad { border-left: 4px solid var(--bad); }
+.card-h, .option-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; }
+.card-h h3, .option-h h3 { flex: 1; min-width: 0; }
+
+/* チップ */
+.chip { display: inline-block; font-size: 12.5px; font-weight: 700; line-height: 1.6; padding: 1px 10px; border-radius: 999px; white-space: nowrap; vertical-align: 1px; background: var(--off-soft); color: var(--off); }
+.chip.accent { background: var(--accent-soft); color: var(--accent); }
+.chip.good { background: var(--good-soft); color: var(--good); }
+.chip.warn { background: var(--warn-soft); color: var(--warn); }
+.chip.major { background: var(--major-soft); color: var(--major); }
+.chip.bad { background: var(--bad-soft); color: var(--bad); }
+.chip.off { background: var(--off-soft); color: var(--off); }
+
+/* 番号付きの行（手順・調査結果） */
+.rows { list-style: none; margin: 0; padding: 0; background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; }
+.rows li { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 12px; padding: 12px 16px; }
+.rows li + li { border-top: 1px solid var(--rule); }
+.rows .n { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font-family: var(--display); font-weight: 700; font-size: 13px; margin-top: 2px; }
+.rows .t { font-weight: 700; }
+.rows .d { font-size: 14px; color: var(--muted); }
+
+/* 表 */
+.tbl { overflow-x: auto; background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14px; }
+th, td { padding: 9px 12px; border-top: 1px solid var(--rule); text-align: left; vertical-align: top; }
+thead th { border-top: 0; font-size: 12.5px; color: var(--muted); background: var(--bg); white-space: nowrap; }
+td.c { text-align: center; white-space: nowrap; font-weight: 700; }
+.ok { color: var(--good); } .ng { color: var(--bad); } .so { color: var(--warn); }
+
+/* 図（インライン SVG） */
+.fig { margin: 0; display: grid; gap: 8px; min-width: 0; }
+.fig .canvas { overflow-x: auto; background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; padding: 12px; }
+.fig svg { display: block; width: 100%; height: auto; min-width: 640px; color: var(--ink); }
+svg text { fill: currentColor; font-family: var(--body); font-size: 13px; }
+svg text.h { font-weight: 700; }
+svg text.sub { fill: var(--muted); font-size: 11.5px; }
+svg .box { fill: var(--paper); stroke: var(--rule); stroke-width: 1.5; }
+svg .box.accent { fill: var(--accent-soft); stroke: var(--accent); }
+svg .box.good { fill: var(--good-soft); stroke: var(--good); }
+svg .box.warn { fill: var(--warn-soft); stroke: var(--warn); }
+svg .box.bad { fill: var(--bad-soft); stroke: var(--bad); }
+svg .line { stroke: currentColor; stroke-width: 1.5; fill: none; }
+svg .line.dashed { stroke: var(--off); stroke-dasharray: 5 4; }
+svg .arrow { fill: currentColor; }
+figcaption { font-size: 13px; color: var(--muted); max-width: 46rem; }
+
+/* 流れ（横並びのステップ） */
+.flow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 14px; }
+.flow .step { background: var(--paper); border: 1px solid var(--rule); border-radius: 8px; padding: 6px 12px; min-width: 0; }
+.flow .step.end { background: var(--good-soft); border-color: var(--good); }
+.flow .arrow { color: var(--muted); }
+
+/* 時系列 */
+.timeline { list-style: none; margin: 0 0 0 6px; padding: 0; border-left: 2px solid var(--rule); }
+.timeline li { position: relative; padding: 0 0 16px 22px; display: grid; grid-template-columns: 6rem minmax(0, 1fr); gap: 4px 12px; }
+.timeline li::before { content: ""; position: absolute; left: -7px; top: .55em; width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 2px solid var(--muted); }
+.timeline li.hit::before { background: var(--accent); border-color: var(--accent); }
+.timeline time { font-family: var(--mono); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.timeline .what { font-size: 14px; min-width: 0; }
+
+/* 選択肢（確認用） */
+.options { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.option { background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; padding: 16px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.option.recommended { border: 2px solid var(--accent); }
+.option p { font-size: 14px; }
+.pc { display: grid; gap: 4px; font-size: 14px; }
+.pc ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 2px; }
+.pc li { padding-left: 1.4em; position: relative; }
+.pc li::before { position: absolute; left: 0; font-weight: 700; }
+.pros li::before { content: "＋"; color: var(--good); }
+.cons li::before { content: "－"; color: var(--bad); }
+
+/* 結論・推奨 */
+.callout { background: var(--accent-soft); border-left: 4px solid var(--accent); border-radius: 8px; padding: 12px 16px; display: grid; gap: 6px; }
+.callout h3 { color: var(--accent); }
+.callout p { font-size: 14.5px; }
+
+/* フォーム部品（人が答えるチェックリストなど。送信先は持たない） */
+input, select, textarea, button { font: inherit; color: inherit; }
+select, textarea, input:not([type="checkbox"]):not([type="radio"]) { background: var(--paper); border: 1px solid var(--rule); border-radius: 6px; padding: 4px 8px; }
+textarea { width: 100%; min-height: 4em; resize: vertical; }
+input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); }
+
+/* 操作 */
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (max-width: 720px) {
+  .page { gap: 36px; }
+  .timeline li { grid-template-columns: 1fr; }
+  .kv { grid-template-columns: 1fr; gap: 2px; }
+  .kv dt { margin-top: 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="head">
+  <p class="eyebrow">dotfiles ／ html-report skill ／ 2026-10-21</p>
+  <h1>html-report テンプレート</h1>
+  <p class="lede">Claude の HTML Artifact と同じ設計規約でローカル HTML を書くための骨格です。各節がそのまま部品の実例になっています。コピーして <code>:root</code> のトークンと本文を差し替えてください。</p>
+  <dl class="kv">
+    <dt>対象</dt><dd><code>/tmp/&lt;topic&gt;.html</code> に書き出す「確認」と「レポート」</dd>
+    <dt>根拠</dt><dd>Artifact の publish 時 skeleton と artifact-design skill の fundamentals。手元の Artifact 3 件の共通部分</dd>
+  </dl>
+</header>
+
+<section aria-labelledby="sec-summary">
+  <div class="sec-h">
+    <h2 id="sec-summary">要点</h2>
+    <p><code>.facts</code> は数字を先に見せる所、<code>.cards</code> は並列の要点に使う。カードの左縁色は意味色（good / warn / bad）で、飾りではなく状態を表す。</p>
+  </div>
+  <div class="facts">
+    <div class="fact"><b>3</b><span>フォントの役割（display / body / mono）</span></div>
+    <div class="fact"><b>6 + 5</b><span>色トークン（基本 6 色 + 意味色 5 色）</span></div>
+    <div class="fact"><b>960px</b><span>本文カラムの最大幅</span></div>
+  </div>
+  <div class="cards">
+    <div class="card good"><h3>そのまま使える</h3><p>Google Fonts が読めない環境でも Hiragino Sans に落ちて崩れない。JS は使っていない。</p></div>
+    <div class="card warn"><h3>主題に合わせて変える</h3><p>アクセント色と display 書体は主題ごとに決める。手引きなら明朝（Shippori Mincho B1）も候補。</p></div>
+    <div class="card bad"><h3>やらない</h3><p>ダークモード分岐、外部 JS、mermaid、絵文字見出し、全カードへの同じ影。</p></div>
+  </div>
+</section>
+
+<section aria-labelledby="sec-findings">
+  <div class="sec-h">
+    <h2 id="sec-findings">調査結果</h2>
+    <p><code>.rows</code> は番号に順序の意味があるときに使う。順序がなければ <code>.cards</code> か箇条書きにする。</p>
+  </div>
+  <ol class="rows">
+    <li><span class="n">1</span><div><span class="t">Artifact は本文だけを書き、骨格はサービスが付ける</span> <span class="chip accent">事実</span><p class="d">publish 時に doctype・meta・リセット CSS（14px システムフォント、白地）が先頭に差し込まれる。ローカルでは <code>&lt;head&gt;</code> とリセットを自分で書く。</p></div></li>
+    <li><span class="n">2</span><div><span class="t">色とフォントは <code>:root</code> のトークンに集約されている</span> <span class="chip accent">事実</span><p class="d">地・紙・文字・補助・罫線・アクセントの 6 色と、good / major / warn / bad / off の意味色。部品の CSS は <code>var()</code> だけを使う。</p></div></li>
+    <li><span class="n">3</span><div><span class="t">図はインライン SVG で、文字は <code>currentColor</code></span> <span class="chip good">確認済み</span><p class="d">3 件とも <code>svg text { fill: currentColor }</code> を置き、塗りと線を CSS 変数で指定していた。</p></div></li>
+  </ol>
+</section>
+
+<section aria-labelledby="sec-diagram">
+  <div class="sec-h">
+    <h2 id="sec-diagram">構成図</h2>
+    <p><code>figure.fig</code> の中に <code>.canvas</code>（横スクロールの箱）と <code>svg</code>、下に <code>figcaption</code>。箱は <code>.box</code>、矢印は <code>.line</code> + marker。</p>
+  </div>
+  <figure class="fig">
+    <div class="canvas">
+      <svg viewBox="0 0 760 200" role="img" aria-label="Artifact は本文だけを書いて publish 時に骨格が付く。ローカル HTML は完全な文書を書いて open で開く">
+        <defs>
+          <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow"/></marker>
+        </defs>
+        <text x="20" y="24" class="sub">Artifact</text>
+        <rect x="20" y="34" width="200" height="56" rx="8" class="box"/>
+        <text x="120" y="58" text-anchor="middle" class="h">本文だけの HTML</text>
+        <text x="120" y="77" text-anchor="middle" class="sub">title と style から始まる断片</text>
+        <line x1="220" y1="62" x2="268" y2="62" class="line" marker-end="url(#ar)"/>
+        <rect x="270" y="34" width="200" height="56" rx="8" class="box accent"/>
+        <text x="370" y="58" text-anchor="middle" class="h">publish 時に骨格を付与</text>
+        <text x="370" y="77" text-anchor="middle" class="sub">doctype・meta・リセット CSS</text>
+        <line x1="470" y1="62" x2="518" y2="62" class="line" marker-end="url(#ar)"/>
+        <rect x="520" y="34" width="200" height="56" rx="8" class="box good"/>
+        <text x="620" y="58" text-anchor="middle" class="h">Artifact viewer</text>
+        <text x="620" y="77" text-anchor="middle" class="sub">claude.ai で表示</text>
+
+        <text x="20" y="124" class="sub">ローカル HTML（この skill）</text>
+        <rect x="20" y="134" width="200" height="56" rx="8" class="box"/>
+        <text x="120" y="158" text-anchor="middle" class="h">完全な HTML 文書</text>
+        <text x="120" y="177" text-anchor="middle" class="sub">骨格を自分で書く</text>
+        <line x1="220" y1="162" x2="268" y2="162" class="line" marker-end="url(#ar)"/>
+        <rect x="270" y="134" width="200" height="56" rx="8" class="box accent"/>
+        <text x="370" y="158" text-anchor="middle" class="h">/tmp/&lt;topic&gt;.html</text>
+        <text x="370" y="177" text-anchor="middle" class="sub">open で開く</text>
+        <line x1="470" y1="162" x2="518" y2="162" class="line" marker-end="url(#ar)"/>
+        <rect x="520" y="134" width="200" height="56" rx="8" class="box good"/>
+        <text x="620" y="158" text-anchor="middle" class="h">ブラウザ</text>
+        <text x="620" y="177" text-anchor="middle" class="sub">同じ見た目で表示</text>
+        <line x1="370" y1="90" x2="370" y2="132" class="line dashed"/>
+      </svg>
+    </div>
+    <figcaption>上段が Artifact、下段がローカル HTML。点線でつないだ 2 つ目の箱（骨格）を自分で書く点だけが違う。</figcaption>
+  </figure>
+</section>
+
+<section aria-labelledby="sec-flow">
+  <div class="sec-h">
+    <h2 id="sec-flow">流れと時系列</h2>
+    <p>短い手順は <code>.flow</code>、日付付きの経緯は <code>.timeline</code>。どちらも文章より先に目に入る。</p>
+  </div>
+  <div class="flow">
+    <span class="step">主題と役割を決める</span><span class="arrow">→</span>
+    <span class="step">template.html を読む</span><span class="arrow">→</span>
+    <span class="step">トークンを決める</span><span class="arrow">→</span>
+    <span class="step">本文を書く</span><span class="arrow">→</span>
+    <span class="step end">open で開く</span>
+  </div>
+  <ul class="timeline">
+    <li><time>2026-10-15</time><div class="what">eli 系 skill に SVG の <code>currentColor</code> ルールを追加（#3）</div></li>
+    <li><time>2026-10-16</time><div class="what">frontend-verify が <code>/tmp/*.html</code> のレポートで発火しないよう修正</div></li>
+    <li class="hit"><time>2026-10-21</time><div class="what">html-report skill を追加。ローカル HTML を Artifact と同じ設計規約にそろえる</div></li>
+  </ul>
+</section>
+
+<section aria-labelledby="sec-compare">
+  <div class="sec-h">
+    <h2 id="sec-compare">比較表</h2>
+    <p>表は <code>.tbl</code> で包む。列が多いときは表だけ横スクロールし、ページは動かない。</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>項目</th><th>Artifact</th><th>ローカル HTML</th><th>そろえる</th></tr></thead>
+      <tbody>
+        <tr><td>骨格（doctype・meta・リセット）</td><td>サービスが付与</td><td>自分で書く</td><td class="c ok">○</td></tr>
+        <tr><td>色・フォントのトークン</td><td><code>:root</code></td><td><code>:root</code></td><td class="c ok">○</td></tr>
+        <tr><td>和文 Google Fonts</td><td>使う（フォールバック付き）</td><td>使う（フォールバック付き）</td><td class="c ok">○</td></tr>
+        <tr><td>ダークモード</td><td>両テーマ</td><td>ライト固定（AGENTS.md）</td><td class="c so">△</td></tr>
+        <tr><td>mermaid</td><td>描画される</td><td>描画されない。SVG を使う</td><td class="c ng">×</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section aria-labelledby="sec-cite">
+  <div class="sec-h">
+    <h2 id="sec-cite">引用</h2>
+    <p>コード・ファイルパス・SHA は <code>pre</code> と <code>.cite</code> で出す。本文中の短い識別子は <code>code</code>。</p>
+  </div>
+  <div class="prose" style="display: grid; gap: 6px;">
+    <p class="cite">dot_agents/AGENTS.md:28-33 ／ コミュニケーション（抜粋）</p>
+    <pre><code>- 次のものは、コンソール Markdown ではなく `/tmp/&lt;topic&gt;.html` に HTML ファイルとして書き出してパスを伝える
+- HTML ファイルを書き出したら、続けて Bash ツールで `open &lt;filepath&gt;` を実行し、デフォルトブラウザで自動的に開く
+- HTML のスタイルはライトモード固定にする</code></pre>
+    <p class="quote">復元したことのないバックアップは、バックアップではなく仮説である。<span class="muted">（引用文は <code>.quote</code>）</span></p>
+  </div>
+</section>
+
+<section aria-labelledby="sec-options">
+  <div class="sec-h">
+    <h2 id="sec-options">選択肢</h2>
+    <p>「確認」では <code>.options</code> に案を並べ、推奨案に <code>.recommended</code> と <code>.chip.accent</code> を付ける。各案はコードブロック + Pros / Cons。</p>
+  </div>
+  <div class="options">
+    <div class="option recommended">
+      <div class="option-h"><h3>案 A: テンプレートを複製して書く</h3><span class="chip accent">推奨</span></div>
+      <pre><code>cp ~/.agents/skills/html-report/template.html /tmp/&lt;topic&gt;.html</code></pre>
+      <div class="pc pros"><ul><li>Artifact と同じ骨格・部品が最初からそろう</li><li>トークンを変えるだけで主題に合わせられる</li></ul></div>
+      <div class="pc cons"><ul><li>使わない部品の CSS が残る（害はない）</li></ul></div>
+    </div>
+    <div class="option">
+      <div class="option-h"><h3>案 B: 毎回ゼロから設計する</h3><span class="chip">非推奨</span></div>
+      <pre><code>（骨格・トークン・部品を都度書く）</code></pre>
+      <div class="pc pros"><ul><li>主題ごとに自由度が高い</li></ul></div>
+      <div class="pc cons"><ul><li>レポートごとに見た目がばらつく</li><li>骨格やフォールバックの書き漏れが起きやすい</li></ul></div>
+    </div>
+  </div>
+  <div class="callout">
+    <h3>推奨: 案 A</h3>
+    <p>結論・推奨案・次のアクションは <code>.callout</code> に 1 つだけ置く。読者が最後に見る所なので、ここだけアクセント色の面を使う。</p>
+  </div>
+</section>
+
+<footer class="foot">
+  <p><strong>読んだもの</strong></p>
+  <ul>
+    <li>Artifact の publish 時 skeleton（手元の Artifact 3 件を <code>read</code> して確認）</li>
+    <li>artifact-design skill の fundamentals（トークン・タイポグラフィ・レイアウト・コピー）</li>
+  </ul>
+  <p><strong>読んでいないもの</strong>: 各 Artifact のダークモード用トークン値。ローカルではライト固定のため対象外。</p>
+</footer>
+
+</div>
+</body>
+</html>

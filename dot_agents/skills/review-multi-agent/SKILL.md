@@ -397,122 +397,90 @@ Markdown 本体は `Write` tool で生成する。構成は以下のテンプレ
 
 #### 4-5-b. HTML 本体
 
-HTML 本体も `Write` tool で生成する。Markdown と**同じ情報を同じ並び順で**載せ、ブラウザで見やすい単一ファイル（外部 CSS / JS / フォント・画像への依存なし）として作る。`open <path>.html` でそのまま開ける状態を維持すること。
+HTML 本体も `Write` tool で生成する。Markdown と**同じ情報を同じ並び順で**載せ、ブラウザで見やすい単一ファイルとして作る。デザインは **html-report skill**（`~/.agents/skills/html-report/`）に従い、`template.html` の骨格・トークン・部品をそのまま使う。`open <path>.html` でそのまま開ける状態を維持すること。
 
 **必須要件**:
 
 - `<!DOCTYPE html>` から始まる完全な HTML 文書を 1 ファイルで出力する
-- `<html lang="ja">` を指定し、`<head>` に `<meta charset="UTF-8">` と `<title>Multi-Agent Review レポート — {identifier}</title>` を含める
-- CSS は `<style>` 内に inline で完結させる（外部 CDN・Web フォント・JS は使わない）
+- `~/.agents/skills/html-report/template.html` を Read し、`<head>`（meta・Google Fonts の `<link>`・`<style>`）をそのままコピーする。`<title>` は `Multi-Agent Review {identifier}` にする
+- 外部依存は html-report の規約どおり Google Fonts のみ（フォールバック付き）。JS・CDN・外部画像は使わない
 - スタイルはライトモード固定にする。CSS 変数で配色を定義し、`prefers-color-scheme: dark` などのダークモード分岐は入れない
-- severity ごとのバッジ色を以下に揃える: blocker = 赤系（`#cf222e`）、major = 橙系（`#bc4c00`）、minor = 黄系（`#9a6700`）、nit = 灰系（`#656d76`）
+- severity バッジは template の `.chip` を使い、色はトークンで揃える: blocker = `.chip.bad`、major = `.chip.major`、minor = `.chip.warn`、nit = `.chip.off`。色の直書きはしない
 - 構成セクションは Markdown と一致させる: メタ情報表 → TL;DR → 目次 → 全体サマリ（Severity 別 / カテゴリ × Severity） → カテゴリ別 Findings → 観点ファイル未整備の警告（該当時のみ）
 - 目次（`<nav>`）からセクションへのアンカーリンクは、Markdown の見出し ID と一致させる
-- 各 finding カードは ID / severity バッジ / location / 指摘本文 / 修正案を含むブロックとして配置する
+- 各 finding カードは `.card` で作り、見出し行 `.card-h` に ID（`.cite`）/ severity バッジ（`.chip`）/ location（`.cite` + `code`）を置き、本文に指摘 / 修正案（`pre`）を含める
 
 **テンプレート（finding 1 件分まで含む最小例）**:
 
+`<head>` と `<style>` は template.html のものをそのまま使う。以下は `<div class="page">` の中身。
+
 ```html
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<title>Multi-Agent Review レポート — {identifier}</title>
-<style>
-  :root {
-    --bg: #ffffff; --fg: #1f2328; --muted: #656d76;
-    --border: #d1d9e0; --code-bg: #f6f8fa; --link: #0969da;
-    --blocker: #cf222e; --major: #bc4c00; --minor: #9a6700; --nit: #656d76;
-  }
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-    color: var(--fg); background: var(--bg);
-    max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; line-height: 1.6; }
-  h1, h2, h3, h4 { line-height: 1.25; margin-top: 1.8em; margin-bottom: 0.6em; }
-  h1 { font-size: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
-  h2 { font-size: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
-  a { color: var(--link); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
-  th, td { border: 1px solid var(--border); padding: 0.4em 0.8em; text-align: left; vertical-align: top; }
-  th { background: var(--code-bg); }
-  code { background: var(--code-bg); padding: 0.1em 0.3em; border-radius: 3px;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace; font-size: 0.9em; }
-  pre { background: var(--code-bg); padding: 1em; border-radius: 6px; overflow-x: auto; }
-  pre code { background: transparent; padding: 0; }
-  blockquote { color: var(--muted); border-left: 0.25em solid var(--border); padding: 0 1em; margin: 1em 0; }
-  .badge { display: inline-block; padding: 0.1em 0.6em; border-radius: 10px;
-    font-size: 0.8em; font-weight: 600; color: #fff; text-transform: uppercase; }
-  .badge-blocker { background: var(--blocker); }
-  .badge-major { background: var(--major); }
-  .badge-minor { background: var(--minor); }
-  .badge-nit { background: var(--nit); }
-  .finding { border: 1px solid var(--border); border-radius: 6px;
-    padding: 1em 1.25em; margin: 1em 0; }
-  .finding-header { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5em; margin-bottom: 0.5em; }
-  .finding-id { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--muted); font-weight: 600; }
-  .finding-location { color: var(--muted); font-size: 0.95em; }
-</style>
-</head>
-<body>
+<header class="head">
+  <p class="eyebrow">review-multi-agent ／ {identifier} ／ {ISO 8601}</p>
+  <h1>Multi-Agent Review レポート</h1>
+  <dl class="kv">
+    <dt>対象</dt><dd>{identifier}</dd>
+    <dt>カテゴリ</dt><dd>{選択カテゴリ一覧}</dd>
+    <dt>Severity threshold</dt><dd>{blocker / major / all}</dd>
+    <dt>Finding 総数</dt><dd>{N}</dd>
+  </dl>
+</header>
 
-<h1>Multi-Agent Review レポート</h1>
-
-<table>
-  <tr><th>対象</th><td>{identifier}</td></tr>
-  <tr><th>実行日時</th><td>{ISO 8601}</td></tr>
-  <tr><th>カテゴリ</th><td>{選択カテゴリ一覧}</td></tr>
-  <tr><th>Severity threshold</th><td>{blocker / major / all}</td></tr>
-  <tr><th>Finding 総数</th><td>{N}</td></tr>
-</table>
-
-<h2 id="tldr">TL;DR</h2>
-<ul>
-  <li><strong>件数</strong>: blocker {N} / major {N}</li>
-  <li><strong>重点対応候補</strong>:
-    <ul>
-      <li><a href="#f-001"><span class="finding-id">F-001</span></a>
-        <span class="badge badge-blocker">blocker</span> security / <code>src/auth.ts:42</code> — 認可チェックが欠落</li>
-    </ul>
-  </li>
-</ul>
-
-<nav>
-  <h2 id="toc">目次</h2>
-  <ul>
-    <li><a href="#summary">全体サマリ</a></li>
-    <li><a href="#findings">カテゴリ別 Findings</a>
-      <ul><li><a href="#security">Security</a></li></ul>
-    </li>
-  </ul>
-</nav>
-
-<h2 id="summary">全体サマリ</h2>
-<h3>Severity 別</h3>
-<table>
-  <tr><th>Severity</th><th>件数</th></tr>
-  <tr><td>blocker</td><td>{N}</td></tr>
-  <tr><td>major</td><td>{N}</td></tr>
-</table>
-
-<h2 id="findings">カテゴリ別 Findings</h2>
-<h3 id="security">Security</h3>
-<blockquote>サマリ: {2-3 文}</blockquote>
-
-<div class="finding" id="f-001">
-  <div class="finding-header">
-    <span class="finding-id">F-001</span>
-    <span class="badge badge-blocker">blocker</span>
-    <span class="finding-location"><code>src/auth.ts:42</code></span>
+<section aria-labelledby="tldr">
+  <div class="sec-h"><h2 id="tldr">TL;DR</h2></div>
+  <div class="facts">
+    <div class="fact"><b>{N}</b><span>blocker</span></div>
+    <div class="fact"><b>{N}</b><span>major</span></div>
   </div>
-  <p><strong>指摘</strong>: 認可チェックが欠落している。</p>
-  <p><strong>修正案</strong>:</p>
+  <div class="callout">
+    <h3>重点対応候補</h3>
+    <p><a href="#f-001"><code>F-001</code></a> <span class="chip bad">blocker</span> security ／ <code>src/auth.ts:42</code> 認可チェックが欠落</p>
+  </div>
+</section>
+
+<section aria-labelledby="toc">
+  <div class="sec-h"><h2 id="toc">目次</h2></div>
+  <nav>
+    <ul>
+      <li><a href="#summary">全体サマリ</a></li>
+      <li><a href="#findings">カテゴリ別 Findings</a>
+        <ul><li><a href="#security">Security</a></li></ul>
+      </li>
+    </ul>
+  </nav>
+</section>
+
+<section aria-labelledby="summary">
+  <div class="sec-h"><h2 id="summary">全体サマリ</h2></div>
+  <h3>Severity 別</h3>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Severity</th><th>件数</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip bad">blocker</span></td><td class="tabular">{N}</td></tr>
+        <tr><td><span class="chip major">major</span></td><td class="tabular">{N}</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section aria-labelledby="findings">
+  <div class="sec-h"><h2 id="findings">カテゴリ別 Findings</h2></div>
+  <h3 id="security">Security</h3>
+  <p class="quote">サマリ: {2-3 文}</p>
+  <div class="card" id="f-001">
+    <div class="card-h">
+      <span class="cite">F-001</span>
+      <span class="chip bad">blocker</span>
+      <span class="cite"><code>src/auth.ts:42</code></span>
+    </div>
+    <p><strong>指摘</strong>: 認可チェックが欠落している。</p>
+    <p><strong>修正案</strong>:</p>
 <pre><code>if (!await requireRole(ctx, "admin")) {
   return Response.json({ error: "forbidden" }, { status: 403 });
 }</code></pre>
-</div>
-
-</body>
-</html>
+  </div>
+</section>
 ```
 
 #### 4-5-c. HTML 出力時の実装上の注意
@@ -523,7 +491,7 @@ HTML 本体も `Write` tool で生成する。Markdown と**同じ情報を同�
 - **巨大化抑制**: Markdown と同じ閾値（30 行）で打ち切り、末尾に `<p>（後略、N 行）</p>` を追記する
 - **空セクションの扱い**: Markdown と同じ規則。Finding 0 件のカテゴリは見出しは出すが本文に「指摘なし」とだけ書く
 - **両ファイルの整合性**: 同じ実行内では Markdown と HTML の以下を**必ず一致**させる — finding ID 連番・並び順・件数集計・カテゴリ一覧・threshold 表記。Markdown を正とし、HTML はその写像として組み立てる
-- **依存ゼロ**: 外部 CDN / Web フォント / JS は読み込まない。オフラインかつ `open` 一発で表示できる状態を維持する
+- **依存**: html-report の規約どおり、Google Fonts 以外の外部リソース（CDN / JS / 画像）は読み込まない。フォントはフォールバック付きなので、オフラインでも `open` 一発で表示できる
 
 ### 4-6. コンソールサマリ
 
