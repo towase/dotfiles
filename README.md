@@ -40,15 +40,16 @@ macOS の開発環境を再現するための dotfiles リポジトリ。
 | --- | --- | --- |
 | `.zshrc` を編集 | `dot_zshrc` | `chezmoi apply` |
 | `.gitconfig` を編集 | `dot_gitconfig` | `chezmoi apply` |
-| グローバルの `~/.agents/AGENTS.md` / `~/.claude/CLAUDE.md` を編集 | `dot_agents/AGENTS.md` | `chezmoi apply` |
+| グローバルの `~/.agents/AGENTS.md` / `~/.claude/CLAUDE.md` / `~/.codex/AGENTS.md` を編集 | `dot_agents/AGENTS.md` | `chezmoi apply` |
 | このリポジトリ用の `AGENTS.md` / `CLAUDE.md` を編集 | `AGENTS.md` / `CLAUDE.md` | 直接編集 |
 | skill を編集 | `dot_agents/skills/<name>/` | `chezmoi apply` |
+| 上流から取り込んだ skill（例: `yomiyasu`）を更新 | `dot_agents/skills/<name>/INSTALLATION.md` の手順に従う | `chezmoi apply` |
 | CLI を追加・更新・削除 | `aqua.yaml` | `./install.sh` または aqua コマンド |
 | runtime を追加・更新・削除 | `mise.toml` | `./install.sh` または mise コマンド |
 | OS 基盤・例外 CLI を追加・更新・削除 | `Brewfile` | `./install.sh` または brew コマンド |
 | npm のみで配布される CLI 例外を追加・更新・削除 | `install.sh` | `./install.sh` |
 
-`dot_agents/AGENTS.md` はグローバル向け agent 指示の単一ソース。`dot_claude/CLAUDE.md.tmpl` が同ファイルを include し、`~/.claude/CLAUDE.md` を生成する。
+`dot_agents/AGENTS.md` はグローバル向け agent 指示の単一ソース。`dot_claude/CLAUDE.md.tmpl` と `dot_codex/AGENTS.md.tmpl` が同ファイルを include し、`~/.claude/CLAUDE.md` と `~/.codex/AGENTS.md` を生成する。
 
 リポジトリルートの `AGENTS.md` / `CLAUDE.md` は、このリポジトリ専用の project 指示として直接編集する。
 
