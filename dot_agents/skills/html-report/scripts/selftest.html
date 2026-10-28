@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>layout-check 自己診断</title>
+<style>
+/* 検査が拾うべき崩れを 4 つ入れた見本。node layout-check.mjs scripts/selftest.html が幅 1000 で FAIL 4 件以上になれば検査は動いている */
+body { margin: 0; font-family: sans-serif; }
+.page { max-width: 960px; margin: 0 auto; padding: 24px; display: grid; gap: 24px; }
+/* 1. 入れ子の li にも行の grid が効く（子セレクタにしていない） */
+.rows { list-style: none; padding: 0; }
+.rows li { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 12px; }
+/* 2. 3 列の grid にコードブロック */
+.options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.option { border: 1px solid #ccc; padding: 12px; min-width: 0; }
+pre { overflow-x: auto; background: #eee; margin: 0; }
+/* 3. overflow-wrap の無い箱に長い識別子 */
+.card { width: 240px; border: 1px solid #ccc; padding: 12px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <ol class="rows">
+    <li><span>1</span><div>外部情報<ul><li>この入れ子の項目は、親の .rows li の grid が効いて 30px の列に押し込まれる。文字数が多いほど縦に長く折り返される。</li></ul></div></li>
+  </ol>
+  <div class="options">
+    <div class="option"><pre><code>fun maxLocaleCountCustomizer() = WebServerFactoryCustomizer&lt;TomcatServletWebServerFactory&gt; { factory -&gt; factory.addConnectorCustomizers(TomcatConnectorCustomizer { connector -&gt; connector.maxLocaleCount = -1 }) }</code></pre></div>
+    <div class="option">案 B</div>
+    <div class="option">案 C</div>
+  </div>
+  <div class="card"><p>connector.setProperty("maxLocaleCount", "-1") は効かない。</p></div>
+  <!-- 4. SVG の文字が箱より広い -->
+  <svg viewBox="0 0 400 100" width="400" height="100" role="img" aria-label="見本">
+    <rect x="10" y="20" width="90" height="50" fill="#fff" stroke="#999"/>
+    <text x="55" y="50" text-anchor="middle" font-size="13">RequestContextFilter</text>
+  </svg>
+</div>
+</body>
+</html>

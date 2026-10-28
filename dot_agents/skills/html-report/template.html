@@ -51,7 +51,7 @@ h2 { font-size: 21px; }
 h3 { font-size: 16px; }
 p, ul, ol { margin: 0; }
 ul, ol { padding-left: 1.3em; }
-.prose { max-width: 46rem; min-width: 0; }
+.prose { max-width: 46rem; min-width: 0; overflow-wrap: anywhere; }
 .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; color: var(--muted); }
 .lede { font-size: 17px; max-width: 40em; }
 .meta { font-size: 13px; color: var(--muted); }
@@ -64,6 +64,8 @@ code { font-family: var(--mono); font-size: .86em; }
 :not(pre) > code { background: var(--code-bg); border-radius: 4px; padding: .1em .35em; overflow-wrap: anywhere; }
 pre { margin: 0; background: var(--code-bg); border-radius: 8px; padding: 14px 16px; overflow-x: auto; font-size: 13px; line-height: 1.65; }
 pre code { font-size: inherit; }
+/* 1 行が長いだけのコード（スタックトレース・curl）は折り返す。コピーしても改行は入らない */
+pre.wrap { white-space: pre-wrap; overflow-wrap: anywhere; }
 .cite { font-family: var(--mono); font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
 .quote { border-left: 3px solid var(--accent); padding-left: 14px; }
 
@@ -82,7 +84,7 @@ pre code { font-size: inherit; }
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
 .card { background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; display: grid; gap: 6px; align-content: start; min-width: 0; }
 .card h3 { font-size: 15px; }
-.card p { font-size: 14px; }
+.card p { font-size: 14px; overflow-wrap: anywhere; }
 .card.good { border-left: 4px solid var(--good); }
 .card.warn { border-left: 4px solid var(--warn); }
 .card.major { border-left: 4px solid var(--major); }
@@ -101,16 +103,16 @@ pre code { font-size: inherit; }
 
 /* 番号付きの行（手順・調査結果） */
 .rows { list-style: none; margin: 0; padding: 0; background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; }
-.rows li { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 12px; padding: 12px 16px; }
-.rows li + li { border-top: 1px solid var(--rule); }
+.rows > li { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 12px; padding: 12px 16px; }
+.rows > li + li { border-top: 1px solid var(--rule); }
 .rows .n { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font-family: var(--display); font-weight: 700; font-size: 13px; margin-top: 2px; }
 .rows .t { font-weight: 700; }
-.rows .d { font-size: 14px; color: var(--muted); }
+.rows .d { font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
 
 /* 表 */
 .tbl { overflow-x: auto; background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; }
 table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14px; }
-th, td { padding: 9px 12px; border-top: 1px solid var(--rule); text-align: left; vertical-align: top; }
+th, td { padding: 9px 12px; border-top: 1px solid var(--rule); text-align: left; vertical-align: top; overflow-wrap: anywhere; }
 thead th { border-top: 0; font-size: 12.5px; color: var(--muted); background: var(--bg); white-space: nowrap; }
 td.c { text-align: center; white-space: nowrap; font-weight: 700; }
 .ok { color: var(--good); } .ng { color: var(--bad); } .so { color: var(--warn); }
@@ -140,23 +142,25 @@ figcaption { font-size: 13px; color: var(--muted); max-width: 46rem; }
 
 /* 時系列 */
 .timeline { list-style: none; margin: 0 0 0 6px; padding: 0; border-left: 2px solid var(--rule); }
-.timeline li { position: relative; padding: 0 0 16px 22px; display: grid; grid-template-columns: 6rem minmax(0, 1fr); gap: 4px 12px; }
-.timeline li::before { content: ""; position: absolute; left: -7px; top: .55em; width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 2px solid var(--muted); }
-.timeline li.hit::before { background: var(--accent); border-color: var(--accent); }
+.timeline > li { position: relative; padding: 0 0 16px 22px; display: grid; grid-template-columns: 6rem minmax(0, 1fr); gap: 4px 12px; }
+.timeline > li::before { content: ""; position: absolute; left: -7px; top: .55em; width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 2px solid var(--muted); }
+.timeline > li.hit::before { background: var(--accent); border-color: var(--accent); }
 .timeline time { font-family: var(--mono); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.timeline .what { font-size: 14px; min-width: 0; }
+.timeline .what { font-size: 14px; min-width: 0; overflow-wrap: anywhere; }
 
 /* 選択肢（確認用） */
-.options { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+/* 選択肢は最大 2 列。3 列にするとコードブロックが細い列に入って読めなくなる。長いコードを持つ案は .wide で全幅にする */
+.options { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: 14px; }
+.option.wide { grid-column: 1 / -1; }
 .option { background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; padding: 16px; display: grid; gap: 10px; align-content: start; min-width: 0; }
 .option.recommended { border: 2px solid var(--accent); }
-.option p { font-size: 14px; }
+.option p { font-size: 14px; overflow-wrap: anywhere; }
 .pc { display: grid; gap: 4px; font-size: 14px; }
 .pc ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 2px; }
-.pc li { padding-left: 1.4em; position: relative; }
-.pc li::before { position: absolute; left: 0; font-weight: 700; }
-.pros li::before { content: "＋"; color: var(--good); }
-.cons li::before { content: "－"; color: var(--bad); }
+.pc > li { padding-left: 1.4em; position: relative; overflow-wrap: anywhere; }
+.pc > li::before { position: absolute; left: 0; font-weight: 700; }
+.pros > li::before { content: "＋"; color: var(--good); }
+.cons > li::before { content: "－"; color: var(--bad); }
 
 /* 結論・推奨 */
 .callout { background: var(--accent-soft); border-left: 4px solid var(--accent); border-radius: 8px; padding: 12px 16px; display: grid; gap: 6px; }
@@ -174,7 +178,7 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); }
 
 @media (max-width: 720px) {
   .page { gap: 36px; }
-  .timeline li { grid-template-columns: 1fr; }
+  .timeline > li { grid-template-columns: 1fr; }
   .kv { grid-template-columns: 1fr; gap: 2px; }
   .kv dt { margin-top: 6px; }
 }
@@ -223,6 +227,7 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); }
     <li><span class="n">1</span><div><span class="t">Artifact は本文だけを書き、骨格はサービスが付ける</span> <span class="chip accent">事実</span><p class="d">publish 時に doctype・meta・リセット CSS（14px システムフォント、白地）が先頭に差し込まれる。ローカルでは <code>&lt;head&gt;</code> とリセットを自分で書く。</p></div></li>
     <li><span class="n">2</span><div><span class="t">色とフォントは <code>:root</code> のトークンに集約されている</span> <span class="chip accent">事実</span><p class="d">地・紙・文字・補助・罫線・アクセントの 6 色と、good / major / warn / bad / off の意味色。部品の CSS は <code>var()</code> だけを使う。</p></div></li>
     <li><span class="n">3</span><div><span class="t">図はインライン SVG で、文字は <code>currentColor</code></span> <span class="chip good">確認済み</span><p class="d">3 件とも <code>svg text { fill: currentColor }</code> を置き、塗りと線を CSS 変数で指定していた。</p></div></li>
+    <li><span class="n">4</span><div><span class="t">行の中にリストを入れてよい</span> <span class="chip accent">事実</span><ul class="d"><li>行の grid は <code>.rows &gt; li</code> の子セレクタなので、入れ子の <code>li</code> は普通のリストのまま並ぶ。</li><li>長い識別子や URL は <code>overflow-wrap: anywhere</code> で箱の中で折り返す。</li></ul></div></li>
   </ol>
 </section>
 
@@ -314,7 +319,7 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); }
   </div>
   <div class="prose" style="display: grid; gap: 6px;">
     <p class="cite">dot_agents/AGENTS.md:28-33 ／ コミュニケーション（抜粋）</p>
-    <pre><code>- 次のものは、コンソール Markdown ではなく `/tmp/&lt;topic&gt;.html` に HTML ファイルとして書き出してパスを伝える
+    <pre class="wrap"><code>- 次のものは、コンソール Markdown ではなく `/tmp/&lt;topic&gt;.html` に HTML ファイルとして書き出してパスを伝える
 - HTML ファイルを書き出したら、続けて Bash ツールで `open &lt;filepath&gt;` を実行し、デフォルトブラウザで自動的に開く
 - HTML のスタイルはライトモード固定にする</code></pre>
     <p class="quote">復元したことのないバックアップは、バックアップではなく仮説である。<span class="muted">（引用文は <code>.quote</code>）</span></p>
@@ -329,7 +334,8 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); }
   <div class="options">
     <div class="option recommended">
       <div class="option-h"><h3>案 A: テンプレートを複製して書く</h3><span class="chip accent">推奨</span></div>
-      <pre><code>cp ~/.agents/skills/html-report/template.html /tmp/&lt;topic&gt;.html</code></pre>
+      <pre><code>cp ~/.agents/skills/html-report/template.html \
+   /tmp/&lt;topic&gt;.html</code></pre>
       <div class="pc pros"><ul><li>Artifact と同じ骨格・部品が最初からそろう</li><li>トークンを変えるだけで主題に合わせられる</li></ul></div>
       <div class="pc cons"><ul><li>使わない部品の CSS が残る（害はない）</li></ul></div>
     </div>
