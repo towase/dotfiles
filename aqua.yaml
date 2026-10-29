@@ -25,3 +25,4 @@ packages:
 - name: sharkdp/fd@v10.5.0
 - name: sharkdp/bat@v0.26.1
 - name: ajeetdsouza/zoxide@v0.10.0
+- name: gitleaks/gitleaks@v8.30.1
