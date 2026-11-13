@@ -30,7 +30,7 @@ KPI やカバレッジ目標が与えられたら、達成するまで試行す�
 
 ## 成果物の文章チェック
 
-- 日本語の成果物を作成・更新するときは、提出・投稿・保存の確定前に、毎回 yomiyasu skill を読み、その手順で本文を推敲する。skill 名は Claude Code では `yomiyasu`、Codex では `yomiyasu:yomiyasu`（`$yomiyasu:yomiyasu`）。一覧に無ければ実体の `~/.agents/skills/yomiyasu/SKILL.md` を直接読む。ユーザーからの個別の呼び出しは不要
+- 日本語の成果物を作成・更新するときは、提出・投稿・保存の確定前に、毎回 yomiyasu skill を読み、その手順で本文を推敲する。skill 名は Claude Code・Codex とも `yomiyasu`（Codex では `$yomiyasu`）。一覧に無ければ実体の `~/.agents/skills/yomiyasu/SKILL.md` を直接読む。ユーザーからの個別の呼び出しは不要
 - 対象はドキュメント、レポート、仕様書、README、PR・Issue の説明、レビューコメント、Slack・メールの下書き、画面の文言、チャットで納品する本文。コード・設定値・コマンド・URL・引用は保持する。作業の進捗報告や完了報告には使わない
 - HTML の成果物（`/tmp/<topic>.html` のレポートなど）は、本文の文章を Markdown かテキストに抜き出して推敲・検査し、結果を HTML に反映する。付属の検査スクリプトは HTML のままでは本文を検査しない
 - 意味・条件・数値・固有名詞・断定の強さを保つ。自然な文章は無理に書き換えず、原文や資料にない事実を足さない
