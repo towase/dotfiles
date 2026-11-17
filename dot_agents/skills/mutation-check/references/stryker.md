@@ -25,6 +25,7 @@ StrykerJS で、差分で変わった行にだけ変異を入れ、評価する�
    ```
 
    - `npm i --no-save` をもう一度実行すると、前に `--no-save` で入れたパッケージが消える。足すものがあれば、全部を 1 回のコマンドで入れる
+   - 1 回目でも、lockfile に無いパッケージ（手で入れたものなど）が `node_modules` から消えることがある。npm の出力に `removed` があれば、片付けでユーザーに伝える
    - `npm i -D fast-check` のように依存を足したあとは、Stryker も消えているので `install` をやり直す
    - `npx -p @stryker-mutator/core ...` で一時的に入れる方法は使わない。Stryker がプロジェクトの `typescript` を見つけられずに止まる
 
@@ -70,6 +71,7 @@ StrykerJS で、差分で変わった行にだけ変異を入れ、評価する�
 | Ignored | 設定で評価の外に出した | `stryker-config` の設定では出ない。出たら設定が書き換わっていないかを見る |
 
 - スコアは `(Killed + Timeout) / (Killed + Timeout + Survived + NoCoverage)`。エラーは数えない
+- Stryker 10.1.1 は数値リテラル（`0` や `100`）を変える変異を作らない。スコアが 100% でも、定数や丸め・上下限の値をテストが確かめているかは別に読み、レポートの「確かめてほしいこと」に書く
 - `static: true` はモジュールを読み込むときに評価される箇所（トップレベルの定数や正規表現）の変異。Stryker は評価するテストをすべて流して判定する
 - Stryker が static な変異について `ignoreStatic` を勧める警告を出しても、`ignoreStatic` は使わない。static な変異を評価の外に出すことになる
 

@@ -13,7 +13,8 @@ Stryker が使えない言語や環境で、AI が本番コードに変異を 1 
 選り好みを避けるため、変異は入れる前にすべて書き出す。
 
 1. 範囲の各行に、下の表から当てはまる変異を全部挙げる。AI が面白いと思うものだけを選ばない
-   - 構文 1 か所につき、当てはまる表の行ごとに 1 つ挙げる（1 行に置換が 5 本あれば 5 か所として数える）
+   - 構文 1 か所につき、当てはまる表の行ごとに 1 つ挙げる（1 行に置換が 5 本あれば 5 か所として数える）。表の 1 行に変異が複数あれば（「常に真・常に偽」など）、それぞれ 1 つずつ挙げる
+   - 同じコードになる変異や、同じ振る舞いになる変異（早期 return を消すことと、その if を常に偽にすることなど）は 1 つにまとめ、まとめた理由を `note` に書く
    - 文字列の定数は仕様に関わるもの（既定値・区切り・出力の形式・外部に渡す名前）だけを対象にする。エラーメッセージの文言は対象にしない
 2. 1 回に 40 個まで。超えるときはファイルと範囲から均等に選び、選ばなかった数をレポートに書く。1 回のテストに 30 秒以上かかる（Gradle など）ときは 15 個までにする
 3. 挙げた変異を `<workdir>/manual-mutants.json` に書く。結果を見てから変異を足したり消したりしない
@@ -41,6 +42,7 @@ Stryker が使えない言語や環境で、AI が本番コードに変異を 1 
 {
   "mode": "manual",
   "tests": ["core/src/test/kotlin/com/example/FeeTest.kt"],
+  "test_command": "./gradlew :core:test --tests 'com.example.FeeTest'",
   "mutants": [
     {"id": 1, "file": "core/src/main/kotlin/com/example/Fee.kt", "line": 12,
      "operator": "比較", "before": "if (age < 65)", "after": "if (age <= 65)",
@@ -60,11 +62,11 @@ Stryker が使えない言語や環境で、AI が本番コードに変異を 1 
 1. 本番ファイルのバックアップを取る（ファイルごとに最初の 1 回だけ）: `mkdir -p "<workdir>/backup/$(dirname <file>)" && cp -p <file> <workdir>/backup/<file>`
 2. 変異を 1 つだけ入れる
 3. 構文を確かめる（シェルは `bash -n <file>`、コンパイルする言語はビルド）。ここで落ちたら `invalid` にして、テストは流さずに 5 へ進む
-4. 評価するテストだけを流す。差分のテスト以外は流さない。時間制限を付ける（目安はベースラインの 10 倍。`timeout` コマンドが無い macOS では `perl -e 'alarm 60; exec @ARGV' <command>`）
+4. 評価するテストだけを流す。差分のテスト以外は流さない。テストをファイル単位で流せない言語（Go など）は、差分で足した・変えたテスト関数の名前で絞る（例: `go test ./pkg/fee/ -run '^(TestFee|TestFeeRounding)$'`）。時間制限を付ける（目安はベースラインの 10 倍。`timeout` コマンドが無い macOS では `perl -e 'alarm 60; exec @ARGV' <command>`）
 
    | 言語 | 例 |
    |------|------|
-   | Go | `go test ./pkg/fee/... -run 'TestFee'` |
+   | Go | `go test ./pkg/fee/ -run '^TestFee$'` |
    | Kotlin / Java（Gradle） | `./gradlew :core:test --tests 'com.example.FeeTest'` |
    | PHP | `vendor/bin/phpunit tests/FeeTest.php` |
    | Python | `pytest tests/test_fee.py` |
@@ -79,7 +81,9 @@ Stryker が使えない言語や環境で、AI が本番コードに変異を 1 
 ## 強化と再実行
 
 - 分類・対処・テストの足し方は SKILL.md の手順 4・5 と同じ。`triage.json` の `id` は `manual-mutants.json` の ID を使う
-- 変異は書き出し直さない。1 回目の `manual-mutants.json` をそのまま使う
-- 再実行の前に、`manual-mutants.json` を `<workdir>/round-<N>.manual-mutants.json` として残す。1 回目に `survived` だった変異の `status` を回ごとに比べ、レポートに 1 回目 → 最後の変化を出す
+- 手動モードの `status` には NoCoverage が無い。生き残った変異の行を評価するテストが実行するかは、言語のカバレッジ（`go test -coverprofile`、`pytest --cov` など）で確かめる。取れなければコードを読んで決め、そう決めたことを `reason` に書く
+- SKILL.md 手順 6 の「手順 1 と 3 をやり直す」は、手動モードでは範囲の取り直しと、ここでの入れ直しを指す
+- 変異は書き出し直さない。1 回目の `manual-mutants.json` をそのまま使う。テストの絞り込み（Go の `-run` など）には、手順 5 で足したテスト関数の名前を加える
+- 回が終わるたびに、`manual-mutants.json` を `<workdir>/round-<N>.manual-mutants.json` として残す（`<N>` は終わった回の番号）。1 回目に `survived` だった変異の `status` を回ごとに比べ、レポートに 1 回目 → 最後の変化を出す
 - 再実行では、対処を「テストを足す」にした変異だけを同じ手順で入れ直す。等価・許容・保留にした変異は入れ直さない。テストを足すだけなら、検出済みの変異が検出されなくなることは無いため。既存のテストを書き換えたときは、全部を入れ直す
 - レポートには `killed`・`survived`・`invalid` の数と変異の一覧を出し、スコアは出さない

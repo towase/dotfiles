@@ -21,7 +21,7 @@ user-invocable: true
 
 ## 引数
 
-- `--base <ref>`: 比較元の git の ref（ブランチ・SHA・`<sha>^` など）。省略時は、PR があればその base、無ければリポジトリの規約（CLAUDE.md / AGENTS.md / memory）、それも無ければ `gh repo view --json defaultBranchRef`
+- `--base <ref>`: 比較元の git の ref（ブランチ・SHA・`<sha>^` など）。省略時は、PR があればその base、無ければリポジトリの規約（CLAUDE.md / AGENTS.md / memory）、それも無ければ `gh repo view --json defaultBranchRef`。gh が使えなければ `git symbolic-ref refs/remotes/origin/HEAD` が指すブランチ
 - `--pkg <dir>`: Stryker を動かすディレクトリ（`package.json` のある所）。省略時は差分の TS/JS ファイルから一番近い `package.json` の場所を選ぶ。複数あれば pkg ごとに分けて実行する
 - `--tests <path>...`: 評価するテストファイル。省略時は差分に含まれるテストファイル
 - `--eval-only`: 評価とレポートだけを行い、テストを足さない
@@ -46,7 +46,7 @@ python3 <skill dir>/scripts/mutation_check.py ranges --base <base> > <workdir>/r
 - `tests` が空で `--tests` も無ければ、評価するテストが無いので止めてユーザーに伝える
 - `stryker: true` の本番コード（TS/JS）は Stryker モード、それ以外の言語は手動モードで評価する。両方あれば両方を行う
 - 範囲（ファイルと行範囲）と評価するテストをコンソールに 1〜2 行で示してから進む（確認は求めない）
-- 再実行で比べるため、`ranges.json` を回ごとに `<workdir>/round-<N>.ranges.json` として残す
+- 再実行で比べるため、`ranges.json` を回ごとに `<workdir>/round-<N>.ranges.json` として残す。`<N>` はその回の番号で、1 回目は `round-1`
 
 ### 2. ベースラインを確かめる
 
@@ -107,7 +107,9 @@ Survived と NoCoverage の変異を 1 つずつ、本番コードとテスト�
 }
 ```
 
+- 生き残りが 0 個なら `{"mutants": [], "bugs": []}` を書く
 - `id` は Stryker の変異 ID か、手動モードの `manual-mutants.json` の ID
+- `category` は上の表の 4 つの分類名のどれか。`distinguishing_input` は、結果が変わる入力が無ければ `null`（等価）、仕様の外の入力でだけ変わるならその入力（許容）
 - `replacement` は Stryker の値をそのまま書く。手動モードは `after` を書き、`column` は `null`、`mutator` は references/manual.md の表の「対象」
 - `final` は再実行のあとの結果（`Killed`・`Timeout`・`Survived`。手動モードも先頭を大文字にそろえる）か、`等価`・`許容`・`保留`・`残った`
 
@@ -124,7 +126,7 @@ Survived と NoCoverage の変異を 1 つずつ、本番コードとテスト�
 
 ### 6. 同じ範囲で再実行する
 
-手順 1 と 3 をやり直す（新しいテストファイルも範囲に入る）。手動モードは変異を書き出し直さず、既存の `manual-mutants.json` を使う（references/manual.md「強化と再実行」）。
+手順 1 と 3 をやり直す（新しいテストファイルも範囲に入る）。手順 2 のベースラインは手順 5 で足したテストを流したことで済んでいる。手動モードは変異を書き出し直さず、既存の `manual-mutants.json` を使う（references/manual.md「強化と再実行」）。
 
 - 本番コードの範囲が 1 回目と同じかを確かめる。差があれば、本番コードを変えていないかを見直す
 
@@ -152,7 +154,7 @@ Survived と NoCoverage の変異を 1 つずつ、本番コードとテスト�
 - 実行したコマンドと Stryker のバージョン、`<workdir>` の場所
 - 手動モードの結果には「簡易」と付け、スコアは出さない
 
-コンソールにはレポートのパスと、1 行の要約（例: 「生き残り 6 → 0、PBT 1 本と例ベース 2 本を追加」）を出す。評価だけのときは、対処を「テストを足す」にした変異の数と、`/mutation-check` で強化できることを添える（例: 「生き残り 6、うちテストを足す候補 4。`/mutation-check` で強化できます」）。このスキルの中では commit しない。足したテストは呼び出し元の作業（実装の commit など）の変更として扱う。
+コンソールにはレポートのパスと、1 行の要約（例: 「生き残り 6 → 0、PBT 1 本と例ベース 2 本を追加」）を出す。評価だけのときは、対処を「テストを足す」にした変異の数と、`/mutation-check` で強化できることを添える（例: 「生き残り 6、うちテストを足す候補 4。`/mutation-check` で強化できます」）。候補が 0 個なら、強化の案内は付けない。このスキルの中では commit しない。足したテストは呼び出し元の作業（実装の commit など）の変更として扱う。
 
 ## 不正防止のルール
 
@@ -160,7 +162,7 @@ Survived と NoCoverage の変異を 1 つずつ、本番コードとテスト�
 - `// Stryker disable` などのコメントや、`mutate` の除外・`ignorePatterns` の追加で、変異を評価の外に出さない
 - 変異の差分を写したテストを書かない（正規表現の文字列そのものを比べる、変異で変わる定数を import して期待値にする、など）
 - PBT で、テスト対象と同じ計算を書き写して期待値にしない
-- 評価するテストの範囲を、スコアが上がる方向に後から変えない（既存のテストを評価に足すなど）。範囲を変えるときはユーザーに聞く
+- 評価するテストの範囲を、スコアが上がる方向に後から変えない（既存のテストを評価に足すなど）。手順 5 で足したテスト（新しいファイルや関数）を評価に含めるのは、範囲の変更に当たらない。範囲を変えるときはユーザーに聞く
 - 等価変異・許容とした変異は、すべて理由と一緒にレポートに出す
 
 ## やらないこと
