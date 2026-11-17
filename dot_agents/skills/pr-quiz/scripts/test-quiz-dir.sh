@@ -21,4 +21,20 @@ expect "no origin uses dir name" "$PR_QUIZ_DIR/noremote/main" "$(cd "$TMP/noremo
 expect "branch slash becomes __" "$PR_QUIZ_DIR/acme/widget/feat__x" "$(cd "$TMP/ssh" && bash "$SCRIPT_DIR/quiz-dir.sh")"
 expect "directory is created" "yes" "$([ -d "$PR_QUIZ_DIR/acme/widget/feat__x" ] && echo yes || echo no)"
 (cd "$TMP" && bash "$SCRIPT_DIR/quiz-dir.sh" >/dev/null 2>&1); expect "outside git repo exits 1" 1 "$?"
+
+# $(...) の中で呼ぶので、カウンタではなく mktemp でリポジトリを分ける
+dir_for() { # $1 = origin url。記録先のうち PR_QUIZ_DIR より下を返す
+  local r d; r="$(mktemp -d "$TMP/u.XXXXXX")"; mkrepo "$r" "$1" >/dev/null 2>&1
+  d="$(cd "$r" && bash "$SCRIPT_DIR/quiz-dir.sh")"; printf '%s' "${d#"$PR_QUIZ_DIR"/}"
+}
+expect "http origin" "acme/widget/main" "$(dir_for http://github.com/acme/widget.git)"
+expect "token in https origin is not kept" "acme/widget/main" "$(dir_for https://user:tok@github.com/acme/widget.git)"
+expect "ssh:// with port" "acme/widget/main" "$(dir_for ssh://git@ssh.github.com:443/acme/widget.git)"
+expect "ssh:// without user" "acme/widget/main" "$(dir_for ssh://github.com/acme/widget.git)"
+expect "git:// origin" "acme/widget/main" "$(dir_for git://github.com/acme/widget.git)"
+expect "trailing slash after .git" "acme/widget/main" "$(dir_for https://github.com/acme/widget.git/)"
+expect ".git inside repo name is kept" "acme/acme.github.io/main" "$(dir_for git@github.com:acme/acme.github.io.git)"
+expect "local path origin" "srv/git/widget/main" "$(dir_for /srv/git/widget.git)"
+expect "dot-dot in origin stays under root" "acme/widget/main" "$(dir_for https://github.com/../../acme/widget.git)"
+expect "no directory named after the token" "" "$(find "$PR_QUIZ_DIR" -name '*tok*' -print)"
 echo; echo "passed=$pass failed=$fail"; [ "$fail" -eq 0 ]
