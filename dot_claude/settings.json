@@ -34,5 +34,8 @@
   "advisorModel": "fable",
   "tui": "fullscreen",
   "skipAutoPermissionPrompt": true,
-  "model": "claude-fable-5[1m]"
+  "model": "opusplan",
+  "env": {
+    "CLAUDE_CODE_SUBAGENT_MODEL": "haiku"
+  }
 }
