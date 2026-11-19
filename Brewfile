@@ -25,5 +25,3 @@ cask "codex"
 cask "devin-cli"
 # exception: GUI app — drawio skill の PNG/SVG/PDF エクスポートに使う draw.io Desktop CLI バックエンド
 cask "drawio"
-# exception: GUI app — Xcodes.app（Xcode のバージョン管理）。`xcodes` cask は `xcodes-app` の別名なので正式名で書く
-cask "xcodes-app"
