@@ -8,3 +8,4 @@
 
 ## このリポジトリでの Homebrew 運用
 - この Mac の `/opt/homebrew` は別アカウントの所有なので、`brew install` / `brew upgrade` / `brew bundle` などが権限エラー（Permission denied）で失敗することがある。その場合は `sudo chown` を使わず、`brew` の直後に `as-brew-user` を挟んで実行し直す（例: `brew as-brew-user install --cask xcodes`）。sudo のパスワード入力が要るため、Claude Code からはユーザーに `! brew as-brew-user ...` で実行してもらう
+- brew でパッケージを入れるときは、先に `Brewfile` に例外理由コメント付きで追記してから、インストールコマンドを実行する（ユーザーに実行してもらう場合も、案内する前に追記を済ませる）。インストールしてから `Brewfile` に書く順番にしない

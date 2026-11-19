@@ -25,3 +25,5 @@ cask "codex"
 cask "devin-cli"
 # exception: GUI app — drawio skill の PNG/SVG/PDF エクスポートに使う draw.io Desktop CLI バックエンド
 cask "drawio"
+# exception: aqua package not found for aria2; xcodes が .xip の分割・再開ダウンロードに使う
+brew "aria2"
