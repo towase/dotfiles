@@ -5,3 +5,6 @@
 ## このリポジトリでの Git 運用
 - このリポジトリに限り、`main` ブランチへの直接コミット・プッシュを許可する（`dot_agents/AGENTS.md` の「main / master ブランチに直接コミットしない」ルールをこのリポジトリでは上書きする）
 - `main` にコミットする前に、必ず `git pull --rebase --autostash origin main` でリモートの変更を取り込む。pull の失敗や競合があれば、解消するまでコミット・プッシュに進まない。
+
+## このリポジトリでの Homebrew 運用
+- この Mac の `/opt/homebrew` は別アカウントの所有なので、`brew install` / `brew upgrade` / `brew bundle` などが権限エラー（Permission denied）で失敗することがある。その場合は `sudo chown` を使わず、`brew` の直後に `as-brew-user` を挟んで実行し直す（例: `brew as-brew-user install --cask xcodes`）。sudo のパスワード入力が要るため、Claude Code からはユーザーに `! brew as-brew-user ...` で実行してもらう
