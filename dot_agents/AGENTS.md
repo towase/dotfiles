@@ -105,6 +105,7 @@ KPI やカバレッジ目標が与えられたら、達成するまで試行す�
 ## GitHub 共通ルール
 - ユーザーへのメッセージで Issue / PR / レビューコメントに言及するときは、番号だけでなくタイトルも併記する（例: `#123` ではなく `#123（ログイン画面のバリデーション修正）`）。どの番号がどれか判別できるようにするため
 - PR / Issue（sub issue を含む）を作成するときは、自分を assignee に設定した状態で作成する。`gh pr create` / `gh issue create` では `--assignee @me` を付け、`gh api` で作成する場合は `-f "assignees[]=$(gh api user --jq .login)"` を付ける。ユーザーが別の担当者を指定した場合はそちらに従う。権限不足などでアサインできなかった場合は、その旨をユーザーに伝える
+- Issue / PR / コメントに画像や動画を載せるときは、`gh issue create|edit|comment` / `gh pr create|edit|comment` の `--attach <ファイル>` でアップロードする（[GitHub CLI でファイルを添付する](https://docs.github.com/ja/github-cli/github-cli/attaching-files-with-github-cli)）。本文の Markdown が `![代替テキスト](./path.png)` のようにローカルファイルを参照していれば、その参照がアップロード後の URL に書き換わる。本文が参照していない添付は、本文の末尾に追加される。代替テキストは `--attach './path.png#代替テキスト'` で指定できる。添付にはリポジトリへのプッシュアクセスが必要
 
 ## Git ブランチルール
 - 作業開始時に現在のブランチが main または master の場合、必ず新しいフィーチャーブランチを作成してから作業を始めること
